@@ -465,6 +465,7 @@ size_t len ); // C++14
 
 #include <string>
 
+#include <hq_defs>
 #include <hq_iosfwd>
 #include <hq_iterator>
 #include <hq_memory>
@@ -577,22 +578,21 @@ private:
   };
 
 #ifdef _LIBCPP_BIG_ENDIAN
-  static const size_type __short_mask = 0x01;
   static const size_type __long_mask = 0x1ul;
+  static const size_type __short_mask = __long_mask;
 #else  // _LIBCPP_BIG_ENDIAN
-  static const size_type __short_mask = 0x80;
   static const size_type __long_mask = ~(size_type(~0) >> 1);
+  static const size_type __short_mask = __long_mask;
 #endif // _LIBCPP_BIG_ENDIAN
 
-  enum {__min_cap = (sizeof(__long) - 1) / sizeof(value_type) > 2
-                        ? (sizeof(__long) - 1) / sizeof(value_type)
-                        : 2};
+  enum {__min_cap =
+            (sizeof(__long) - sizeof(size_type)) / sizeof(value_type) > 2
+                ? (sizeof(__long) - sizeof(size_type)) / sizeof(value_type)
+                : 2};
 
   struct __short {
     value_type __data_[__min_cap];
-    struct : __padding<value_type> {
-      unsigned char __size_;
-    };
+    size_type __size_;
   };
 
 #else
@@ -612,16 +612,13 @@ private:
 #endif // _LIBCPP_BIG_ENDIAN
 
   enum {
-    __min_cap = (sizeof(__long) - 1) / sizeof(value_type) > 2
-                    ? (sizeof(__long) - 1) / sizeof(value_type)
+    __min_cap = (sizeof(__long) - sizeof(size_type)) / sizeof(value_type) > 2
+                    ? (sizeof(__long) - sizeof(size_type)) / sizeof(value_type)
                     : 2
   };
 
   struct __short {
-    union {
-      unsigned char __size_;
-      value_type __lx;
-    };
+    size_type __size_;
     value_type __data_[__min_cap];
   };
 
@@ -1377,11 +1374,11 @@ private:
   void __set_short_size(size_type __s) _NOEXCEPT
 #ifdef _LIBCPP_BIG_ENDIAN
   {
-    __r_.first().v().__s.__size_ = (unsigned char)(__s << 1);
+    __r_.first().v().__s.__size_ = __s << 1;
   }
 #else
   {
-    __r_.first().v().__s.__size_ = (unsigned char)(__s);
+    __r_.first().v().__s.__size_ = __s;
   }
 #endif
 
@@ -1403,11 +1400,11 @@ private:
   void __set_short_size(size_type __s) _NOEXCEPT
 #ifdef _LIBCPP_BIG_ENDIAN
   {
-    __r_.first().v().__s.__size_ = (unsigned char)(__s);
+    __r_.first().v().__s.__size_ = __s;
   }
 #else
   {
-    __r_.first().v().__s.__size_ = (unsigned char)(__s << 1);
+    __r_.first().v().__s.__size_ = __s << 1;
   }
 #endif
 
@@ -1456,11 +1453,19 @@ private:
   }
   _LIBCPP_INLINE_VISIBILITY
   pointer __get_long_pointer() _NOEXCEPT {
-    return __r_.first().v().__l.__data_;
+    auto p = __r_.first().v().__l.__data_;
+    auto sz = size();
+    __hq_object_check(p,
+                      ROUND_UP((sz + 1) * sizeof(value_type), POINTER_ALIGN));
+    return p;
   }
   _LIBCPP_INLINE_VISIBILITY
   const_pointer __get_long_pointer() const _NOEXCEPT {
-    return __r_.first().v().__l.__data_;
+    auto p = __r_.first().v().__l.__data_;
+    auto sz = size();
+    __hq_object_check(p,
+                      ROUND_UP((sz + 1) * sizeof(value_type), POINTER_ALIGN));
+    return p;
   }
   _LIBCPP_INLINE_VISIBILITY
   pointer __get_short_pointer() _NOEXCEPT {
@@ -1482,9 +1487,8 @@ private:
 
   _LIBCPP_INLINE_VISIBILITY
   void __zero() _NOEXCEPT {
-    size_type(&__a)[__n_words] = __r_.first().__r.__words;
     for (unsigned __i = 0; __i < __n_words; ++__i)
-      __a[__i] = 0;
+      __r_.first().v().__r.__words[__i] = 0;
   }
 
   template <size_type __a>
@@ -1679,7 +1683,6 @@ inline hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string()
 #if _LIBCPP_DEBUG_LEVEL >= 2
   __get_db()->__insert_c(this);
 #endif
-  __zero();
 }
 
 template <class _CharT, class _Traits, class _Allocator>
@@ -1694,7 +1697,6 @@ inline hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
 #if _LIBCPP_DEBUG_LEVEL >= 2
   __get_db()->__insert_c(this);
 #endif
-  __zero();
 }
 
 template <class _CharT, class _Traits, class _Allocator>
@@ -1716,6 +1718,8 @@ void hq_basic_string<_CharT, _Traits, _Allocator>::__init(const value_type* __s,
   }
   traits_type::copy(_VSTD::__to_raw_pointer(__p), __s, __sz);
   traits_type::assign(__p[__sz], value_type());
+  __hq_object_define(__p,
+                     ROUND_UP((__sz + 1) * sizeof(value_type), POINTER_ALIGN));
 }
 
 template <class _CharT, class _Traits, class _Allocator>
@@ -1736,6 +1740,8 @@ void hq_basic_string<_CharT, _Traits, _Allocator>::__init(const value_type* __s,
   }
   traits_type::copy(_VSTD::__to_raw_pointer(__p), __s, __sz);
   traits_type::assign(__p[__sz], value_type());
+  __hq_object_define(__p,
+                     ROUND_UP((__sz + 1) * sizeof(value_type), POINTER_ALIGN));
 }
 
 template <class _CharT, class _Traits, class _Allocator>
@@ -1861,6 +1867,8 @@ void hq_basic_string<_CharT, _Traits, _Allocator>::__init(size_type __n,
   }
   traits_type::assign(_VSTD::__to_raw_pointer(__p), __n, __c);
   traits_type::assign(__p[__n], value_type());
+  __hq_object_define(__p,
+                     ROUND_UP((__n + 1) * sizeof(value_type), POINTER_ALIGN));
 }
 
 template <class _CharT, class _Traits, class _Allocator>
@@ -1951,7 +1959,6 @@ typename enable_if<__is_exactly_input_iterator<_InputIterator>::value,
                    void>::type
 hq_basic_string<_CharT, _Traits, _Allocator>::__init(_InputIterator __first,
                                                      _InputIterator __last) {
-  __zero();
 #ifndef _LIBCPP_NO_EXCEPTIONS
   try {
 #endif // _LIBCPP_NO_EXCEPTIONS
@@ -1959,9 +1966,12 @@ hq_basic_string<_CharT, _Traits, _Allocator>::__init(_InputIterator __first,
       push_back(*__first);
 #ifndef _LIBCPP_NO_EXCEPTIONS
   } catch (...) {
-    if (__is_long())
-      __alloc_traits::deallocate(__alloc(), __get_long_pointer(),
-                                 __get_long_cap());
+    if (__is_long()) {
+      pointer __p = __get_long_pointer();
+      __alloc_traits::deallocate(__alloc(), __p, __get_long_cap());
+      __hq_object_invalidate(
+          __p, ROUND_UP((size() + 1) * sizeof(value_type), POINTER_ALIGN));
+    }
     throw;
   }
 #endif // _LIBCPP_NO_EXCEPTIONS
@@ -1986,9 +1996,12 @@ hq_basic_string<_CharT, _Traits, _Allocator>::__init(_ForwardIterator __first,
     __set_long_cap(__cap + 1);
     __set_long_size(__sz);
   }
-  for (; __first != __last; ++__first, (void)++__p)
-    traits_type::assign(*__p, *__first);
-  traits_type::assign(*__p, value_type());
+  pointer __e = __p;
+  for (; __first != __last; ++__first, (void)++__e)
+    traits_type::assign(*__e, *__first);
+  traits_type::assign(*__e, value_type());
+  __hq_object_define(__p,
+                     ROUND_UP((__sz + 1) * sizeof(value_type), POINTER_ALIGN));
 }
 
 template <class _CharT, class _Traits, class _Allocator>
@@ -2042,9 +2055,13 @@ hq_basic_string<_CharT, _Traits, _Allocator>::~hq_basic_string() {
 #if _LIBCPP_DEBUG_LEVEL >= 2
   __get_db()->__erase_c(this);
 #endif
-  if (__is_long())
-    __alloc_traits::deallocate(__alloc(), __get_long_pointer(),
-                               __get_long_cap());
+  if (__is_long()) {
+    pointer __p = __get_long_pointer();
+    __alloc_traits::deallocate(__alloc(), __p, __get_long_cap());
+    __hq_object_invalidate(
+        __p,
+        ROUND_UP((__get_long_size() + 1) * sizeof(value_type), POINTER_ALIGN));
+  }
 }
 
 template <class _CharT, class _Traits, class _Allocator>
@@ -2073,13 +2090,18 @@ void hq_basic_string<_CharT, _Traits, _Allocator>::__grow_by_and_replace(
     traits_type::copy(_VSTD::__to_raw_pointer(__p) + __n_copy + __n_add,
                       _VSTD::__to_raw_pointer(__old_p) + __n_copy + __n_del,
                       __sec_cp_sz);
-  if (__old_cap + 1 != __min_cap)
+  if (__old_cap + 1 != __min_cap) {
     __alloc_traits::deallocate(__alloc(), __old_p, __old_cap + 1);
+    __hq_object_invalidate(
+        __old_p, ROUND_UP((__old_sz + 1) * sizeof(value_type), POINTER_ALIGN));
+  }
   __set_long_pointer(__p);
   __set_long_cap(__cap + 1);
   __old_sz = __n_copy + __n_add + __sec_cp_sz;
   __set_long_size(__old_sz);
   traits_type::assign(__p[__old_sz], value_type());
+  __hq_object_define(
+      __p, ROUND_UP((__old_sz + 1) * sizeof(value_type), POINTER_ALIGN));
 }
 
 template <class _CharT, class _Traits, class _Allocator>
@@ -2104,10 +2126,15 @@ void hq_basic_string<_CharT, _Traits, _Allocator>::__grow_by(
     traits_type::copy(_VSTD::__to_raw_pointer(__p) + __n_copy + __n_add,
                       _VSTD::__to_raw_pointer(__old_p) + __n_copy + __n_del,
                       __sec_cp_sz);
-  if (__old_cap + 1 != __min_cap)
+  if (__old_cap + 1 != __min_cap) {
     __alloc_traits::deallocate(__alloc(), __old_p, __old_cap + 1);
+    __hq_object_invalidate(
+        __old_p, ROUND_UP((__old_sz + 1) * sizeof(value_type), POINTER_ALIGN));
+  }
   __set_long_pointer(__p);
   __set_long_cap(__cap + 1);
+  __hq_object_define(
+      __p, ROUND_UP((__old_sz + 1) * sizeof(value_type), POINTER_ALIGN));
 }
 
 // assign
@@ -2123,6 +2150,8 @@ hq_basic_string<_CharT, _Traits, _Allocator>::assign(const value_type* __s,
     value_type* __p = _VSTD::__to_raw_pointer(__get_pointer());
     traits_type::move(__p, __s, __n);
     traits_type::assign(__p[__n], value_type());
+    __hq_object_define(__p,
+                       ROUND_UP((__n + 1) * sizeof(value_type), POINTER_ALIGN));
     __set_size(__n);
     __invalidate_iterators_past(__n);
   } else {
@@ -2145,6 +2174,8 @@ hq_basic_string<_CharT, _Traits, _Allocator>::assign(size_type __n,
   value_type* __p = _VSTD::__to_raw_pointer(__get_pointer());
   traits_type::assign(__p, __n, __c);
   traits_type::assign(__p[__n], value_type());
+  __hq_object_define(__p,
+                     ROUND_UP((__n + 1) * sizeof(value_type), POINTER_ALIGN));
   __set_size(__n);
   return *this;
 }
@@ -2161,7 +2192,9 @@ hq_basic_string<_CharT, _Traits, _Allocator>::operator=(value_type __c) {
     __set_short_size(1);
   }
   traits_type::assign(*__p, __c);
-  traits_type::assign(*++__p, value_type());
+  traits_type::assign(*(__p + 1), value_type());
+  __hq_pointer_define(const_cast<const void**>(reinterpret_cast<void**>(__p)),
+                      reinterpret_cast<void*>(*__p));
   __invalidate_iterators_past(1);
   return *this;
 }
@@ -2247,10 +2280,12 @@ hq_basic_string<_CharT, _Traits, _Allocator>::assign(_ForwardIterator __first,
     __grow_by(__cap, __n - __cap, __sz, 0, __sz);
   } else
     __invalidate_iterators_past(__n);
-  pointer __p = __get_pointer();
-  for (; __first != __last; ++__first, ++__p)
-    traits_type::assign(*__p, *__first);
-  traits_type::assign(*__p, value_type());
+  pointer __p = __get_pointer(), __e = __p;
+  for (; __first != __last; ++__first, ++__e)
+    traits_type::assign(*__e, *__first);
+  traits_type::assign(*__e, value_type());
+  __hq_object_define(__p,
+                     ROUND_UP((__n + 1) * sizeof(value_type), POINTER_ALIGN));
   __set_size(__n);
   return *this;
 }
@@ -2301,9 +2336,14 @@ hq_basic_string<_CharT, _Traits, _Allocator>::append(const value_type* __s,
     if (__n) {
       value_type* __p = _VSTD::__to_raw_pointer(__get_pointer());
       traits_type::copy(__p + __sz, __s, __n);
-      __sz += __n;
-      __set_size(__sz);
-      traits_type::assign(__p[__sz], value_type());
+      __set_size(__sz + __n);
+      traits_type::assign(__p[__sz + __n], value_type());
+      __hq_object_define(
+          __p + ALIGN(__sz, sizeof(void*) / sizeof(value_type)),
+          ROUND_UP(
+              (UNALIGN(__sz, sizeof(void*) / sizeof(value_type)) + __n + 1) *
+                  sizeof(value_type),
+              POINTER_ALIGN));
     }
   } else
     __grow_by_and_replace(__cap, __sz + __n - __cap, __sz, __sz, 0, __n, __s);
@@ -2321,9 +2361,13 @@ hq_basic_string<_CharT, _Traits, _Allocator>::append(size_type __n,
       __grow_by(__cap, __sz + __n - __cap, __sz, __sz, 0);
     pointer __p = __get_pointer();
     traits_type::assign(_VSTD::__to_raw_pointer(__p) + __sz, __n, __c);
-    __sz += __n;
-    __set_size(__sz);
-    traits_type::assign(__p[__sz], value_type());
+    __set_size(__sz + __n);
+    traits_type::assign(__p[__sz + __n], value_type());
+    __hq_object_define(
+        __p + ALIGN(__sz, sizeof(void*) / sizeof(value_type)),
+        ROUND_UP((UNALIGN(__sz, sizeof(void*) / sizeof(value_type)) + __n + 1) *
+                     sizeof(value_type),
+                 POINTER_ALIGN));
   }
   return *this;
 }
@@ -2337,9 +2381,13 @@ inline void hq_basic_string<_CharT, _Traits, _Allocator>::__append_default_init(
     if (__cap - __sz < __n)
       __grow_by(__cap, __sz + __n - __cap, __sz, __sz, 0);
     pointer __p = __get_pointer();
-    __sz += __n;
-    __set_size(__sz);
-    traits_type::assign(__p[__sz], value_type());
+    __set_size(__sz + __n);
+    traits_type::assign(__p[__sz + __n], value_type());
+    __hq_object_define(
+        __p + ALIGN(__sz, sizeof(void*) / sizeof(value_type)),
+        ROUND_UP((UNALIGN(__sz, sizeof(void*) / sizeof(value_type)) + __n + 1) *
+                     sizeof(value_type),
+                 POINTER_ALIGN));
   }
 }
 
@@ -2361,14 +2409,19 @@ void hq_basic_string<_CharT, _Traits, _Allocator>::push_back(value_type __c) {
   }
   pointer __p;
   if (__is_short) {
-    __p = __get_short_pointer() + __sz;
+    __p = __get_short_pointer();
     __set_short_size(__sz + 1);
   } else {
-    __p = __get_long_pointer() + __sz;
+    __p = __get_long_pointer();
     __set_long_size(__sz + 1);
   }
-  traits_type::assign(*__p, __c);
-  traits_type::assign(*++__p, value_type());
+  traits_type::assign(*(__p + __sz), __c);
+  traits_type::assign(*(__p + __sz + 1), value_type());
+  __hq_object_define(
+      __p + ALIGN(__sz, sizeof(void*) / sizeof(value_type)),
+      ROUND_UP((UNALIGN(__sz, sizeof(void*) / sizeof(value_type)) + 1 + 1) *
+                   sizeof(value_type),
+               POINTER_ALIGN));
 }
 
 template <class _CharT, class _Traits, class _Allocator>
@@ -2390,10 +2443,16 @@ hq_basic_string<_CharT, _Traits, _Allocator>::__append_forward_unsafe(
     } else {
       if (__cap - __sz < __n)
         __grow_by(__cap, __sz + __n - __cap, __sz, __sz, 0);
-      pointer __p = __get_pointer() + __sz;
-      for (; __first != __last; ++__p, ++__first)
-        traits_type::assign(*__p, *__first);
-      traits_type::assign(*__p, value_type());
+      pointer __p = __get_pointer(), __e = __p + __sz;
+      for (; __first != __last; ++__e, ++__first)
+        traits_type::assign(*__e, *__first);
+      traits_type::assign(*__e, value_type());
+      __hq_object_define(
+          __p + ALIGN(__sz, sizeof(void*) / sizeof(value_type)),
+          ROUND_UP(
+              (UNALIGN(__sz, sizeof(void*) / sizeof(value_type)) + __n + 1) *
+                  sizeof(value_type),
+              POINTER_ALIGN));
       __set_size(__sz + __n);
     }
   }
@@ -2465,6 +2524,12 @@ hq_basic_string<_CharT, _Traits, _Allocator>::insert(size_type __pos,
       __sz += __n;
       __set_size(__sz);
       traits_type::assign(__p[__sz], value_type());
+      __hq_object_define(
+          __p + ALIGN(__pos, sizeof(void*) / sizeof(value_type)),
+          ROUND_UP(
+              (UNALIGN(__pos, sizeof(void*) / sizeof(value_type)) + __n + 1) *
+                  sizeof(value_type),
+              POINTER_ALIGN));
     }
   } else
     __grow_by_and_replace(__cap, __sz + __n - __cap, __sz, __pos, 0, __n, __s);
@@ -2491,10 +2556,16 @@ hq_basic_string<_CharT, _Traits, _Allocator>::insert(size_type __pos,
       __grow_by(__cap, __sz + __n - __cap, __sz, __pos, 0, __n);
       __p = _VSTD::__to_raw_pointer(__get_long_pointer());
     }
-    traits_type::assign(__p + __pos, __n, __c);
     __sz += __n;
     __set_size(__sz);
+    traits_type::assign(__p + __pos, __n, __c);
     traits_type::assign(__p[__sz], value_type());
+    __hq_object_define(
+        __p + ALIGN(__pos, sizeof(void*) / sizeof(value_type)),
+        ROUND_UP(
+            (UNALIGN(__pos, sizeof(void*) / sizeof(value_type)) + __n + 1) *
+                sizeof(value_type),
+            POINTER_ALIGN));
   }
   return *this;
 }
@@ -2558,8 +2629,14 @@ hq_basic_string<_CharT, _Traits, _Allocator>::insert(const_iterator __pos,
     __sz += __n;
     __set_size(__sz);
     traits_type::assign(__p[__sz], value_type());
-    for (__p += __ip; __first != __last; ++__p, ++__first)
-      traits_type::assign(*__p, *__first);
+    value_type* __e = __p;
+    for (__e += __ip; __first != __last; ++__e, ++__first)
+      traits_type::assign(*__e, *__first);
+    __hq_object_define(
+        __p + ALIGN(__ip, sizeof(void*) / sizeof(value_type)),
+        ROUND_UP((UNALIGN(__ip, sizeof(void*) / sizeof(value_type)) + __n + 1) *
+                     sizeof(value_type),
+                 POINTER_ALIGN));
   }
   return begin() + __ip;
 }
@@ -2627,6 +2704,11 @@ hq_basic_string<_CharT, _Traits, _Allocator>::insert(const_iterator __pos,
   }
   traits_type::assign(__p[__ip], __c);
   traits_type::assign(__p[++__sz], value_type());
+  __hq_object_define(
+      __p + ALIGN(__ip, sizeof(void*) / sizeof(value_type)),
+      ROUND_UP((UNALIGN(__ip, sizeof(void*) / sizeof(value_type)) + 1 + 1) *
+                   sizeof(value_type),
+               POINTER_ALIGN));
   __set_size(__sz);
   return begin() + static_cast<difference_type>(__ip);
 }
@@ -2695,6 +2777,12 @@ hq_basic_string<_CharT, _Traits, _Allocator>::replace(
     __set_size(__sz);
     __invalidate_iterators_past(__sz);
     traits_type::assign(__p[__sz], value_type());
+    __hq_object_define(
+        __p + ALIGN(__pos, sizeof(void*) / sizeof(value_type)),
+        ROUND_UP((UNALIGN(__pos, sizeof(void*) / sizeof(value_type)) + __sz -
+                  __pos + 1) *
+                     sizeof(value_type),
+                 POINTER_ALIGN));
   } else
     __grow_by_and_replace(__cap, __sz - __n1 + __n2 - __cap, __sz, __pos, __n1,
                           __n2, __s);
@@ -2723,11 +2811,17 @@ hq_basic_string<_CharT, _Traits, _Allocator>::replace(
     __grow_by(__cap, __sz - __n1 + __n2 - __cap, __sz, __pos, __n1, __n2);
     __p = _VSTD::__to_raw_pointer(__get_long_pointer());
   }
-  traits_type::assign(__p + __pos, __n2, __c);
   __sz += __n2 - __n1;
   __set_size(__sz);
   __invalidate_iterators_past(__sz);
+  traits_type::assign(__p + __pos, __n2, __c);
   traits_type::assign(__p[__sz], value_type());
+  __hq_object_define(
+      __p + ALIGN(__pos, sizeof(void*) / sizeof(value_type)),
+      ROUND_UP((UNALIGN(__pos, sizeof(void*) / sizeof(value_type)) + __sz -
+                __pos + 1) *
+                   sizeof(value_type),
+               POINTER_ALIGN));
   return *this;
 }
 
@@ -2846,6 +2940,17 @@ hq_basic_string<_CharT, _Traits, _Allocator>::erase(size_type __pos,
     __set_size(__sz);
     __invalidate_iterators_past(__sz);
     traits_type::assign(__p[__sz], value_type());
+    __hq_pointer_define(
+        const_cast<const void**>(reinterpret_cast<void**>(
+            __p + ALIGN(__pos, sizeof(void*) / sizeof(value_type)))),
+        reinterpret_cast<void*>(*reinterpret_cast<uint64_t*>(
+            __p + ALIGN(__pos, sizeof(void*) / sizeof(value_type)))));
+    __hq_object_invalidate(
+        __p + ROUND_UP(__pos, sizeof(void*) / sizeof(value_type)),
+        ROUND_UP(
+            (__n - UNALIGN(__pos, sizeof(void*) / sizeof(value_type)) + 1) *
+                sizeof(value_type),
+            POINTER_ALIGN));
   }
   return *this;
 }
@@ -2889,40 +2994,60 @@ template <class _CharT, class _Traits, class _Allocator>
 inline void hq_basic_string<_CharT, _Traits, _Allocator>::pop_back() {
   _LIBCPP_ASSERT(!empty(), "hq_string::pop_back(): hq_string is already empty");
   size_type __sz;
+  pointer __p;
   if (__is_long()) {
     __sz = __get_long_size() - 1;
     __set_long_size(__sz);
-    traits_type::assign(*(__get_long_pointer() + __sz), value_type());
+    __p = __get_long_pointer();
+    traits_type::assign(*(__p + __sz), value_type());
   } else {
     __sz = __get_short_size() - 1;
     __set_short_size(__sz);
-    traits_type::assign(*(__get_short_pointer() + __sz), value_type());
+    __p = __get_short_pointer();
+    traits_type::assign(*(__p + __sz), value_type());
   }
+  __hq_object_define(
+      __p + ALIGN(__sz, sizeof(void*) / sizeof(value_type)),
+      ROUND_UP(UNALIGN(__sz, sizeof(void*) / sizeof(value_type)) *
+                   sizeof(value_type),
+               POINTER_ALIGN));
   __invalidate_iterators_past(__sz);
 }
 
 template <class _CharT, class _Traits, class _Allocator>
 inline void hq_basic_string<_CharT, _Traits, _Allocator>::clear() _NOEXCEPT {
   __invalidate_all_iterators();
+  pointer __p;
   if (__is_long()) {
-    traits_type::assign(*__get_long_pointer(), value_type());
+    __p = __get_long_pointer();
+    traits_type::assign(*__p, value_type());
     __set_long_size(0);
   } else {
-    traits_type::assign(*__get_short_pointer(), value_type());
+    __p = __get_short_pointer();
+    traits_type::assign(*__p, value_type());
     __set_short_size(0);
   }
+  __hq_object_define(__p, ROUND_UP(1 * sizeof(value_type), POINTER_ALIGN));
 }
 
 template <class _CharT, class _Traits, class _Allocator>
 inline void
 hq_basic_string<_CharT, _Traits, _Allocator>::__erase_to_end(size_type __pos) {
+  pointer __p;
   if (__is_long()) {
-    traits_type::assign(*(__get_long_pointer() + __pos), value_type());
+    __p = __get_long_pointer();
+    traits_type::assign(*(__p + __pos), value_type());
     __set_long_size(__pos);
   } else {
-    traits_type::assign(*(__get_short_pointer() + __pos), value_type());
+    __p = __get_short_pointer();
+    traits_type::assign(*(__p + __pos), value_type());
     __set_short_size(__pos);
   }
+  __hq_object_define(
+      __p + ALIGN(__pos, sizeof(void*) / sizeof(value_type)),
+      ROUND_UP(UNALIGN(__pos, sizeof(void*) / sizeof(value_type)) *
+                   sizeof(value_type),
+               POINTER_ALIGN));
   __invalidate_iterators_past(__pos);
 }
 
@@ -2996,13 +3121,18 @@ void hq_basic_string<_CharT, _Traits, _Allocator>::reserve(
       __p = __get_pointer();
     }
     traits_type::copy(_VSTD::__to_raw_pointer(__new_data),
-                      _VSTD::__to_raw_pointer(__p), size() + 1);
-    if (__was_long)
+                      _VSTD::__to_raw_pointer(__p), __sz + 1);
+    if (__was_long) {
       __alloc_traits::deallocate(__alloc(), __p, __cap + 1);
+      __hq_object_invalidate(
+          __p, ROUND_UP((__sz + 1) * sizeof(value_type), POINTER_ALIGN));
+    }
     if (__now_long) {
       __set_long_cap(__res_arg + 1);
       __set_long_size(__sz);
       __set_long_pointer(__new_data);
+      __hq_object_define(
+          __new_data, ROUND_UP((__sz + 1) * sizeof(value_type), POINTER_ALIGN));
     } else
       __set_short_size(__sz);
     __invalidate_all_iterators();
@@ -3535,7 +3665,10 @@ inline void
 hq_basic_string<_CharT, _Traits, _Allocator>::__clear_and_shrink() _NOEXCEPT {
   clear();
   if (__is_long()) {
-    __alloc_traits::deallocate(__alloc(), __get_long_pointer(), capacity() + 1);
+    pointer __p = __get_long_pointer();
+    __alloc_traits::deallocate(__alloc(), __p, capacity() + 1);
+    __hq_object_invalidate(
+        __p, ROUND_UP((size() + 1) * sizeof(value_type), POINTER_ALIGN));
     __set_long_cap(0);
     __set_short_size(0);
   }

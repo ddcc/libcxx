@@ -428,6 +428,7 @@ template <class T, class Alloc>
 
 #include <memory>
 
+#include <hq_defs>
 #include <hq_iosfwd>
 #include <hq_wrapper>
 
@@ -547,7 +548,7 @@ public:
                 "the specified deleter type cannot be an rvalue reference");
 
 private:
-  __compressed_pair<pointer, deleter_type> __ptr_;
+  __compressed_pair<hq_wrapper<pointer>, deleter_type> __ptr_;
 
   struct __nat {
     int __for_bool_;
@@ -743,7 +744,7 @@ public:
   typedef typename __pointer_type<_Tp, deleter_type>::type pointer;
 
 private:
-  __compressed_pair<pointer, deleter_type> __ptr_;
+  __compressed_pair<hq_wrapper<pointer>, deleter_type> __ptr_;
 
   template <class _From>
   struct _CheckArrayPointerConversion : is_same<_From, pointer> {};
@@ -1125,6 +1126,40 @@ struct _LIBCPP_TEMPLATE_VIS hash<__enable_hash_helper<
   }
 };
 
+template <class _Tp>
+inline _LIBCPP_INLINE_VISIBILITY _Tp
+__libcpp_hq_atomic_refcount_increment(_Tp& __t) _NOEXCEPT {
+  __hq_pointer_check(reinterpret_cast<const void**>(const_cast<long*>(__t.p())),
+                     reinterpret_cast<void*>(*__t.p()));
+#if defined(_LIBCPP_HAS_BUILTIN_ATOMIC_SUPPORT) &&                             \
+    !defined(_LIBCPP_HAS_NO_THREADS)
+  auto v = __atomic_add_fetch(__t.p(), 1, __ATOMIC_RELAXED);
+#else
+  auto v = __t += 1;
+#endif
+  __hq_pointer_define(
+      reinterpret_cast<const void**>(const_cast<long*>(__t.p())),
+      reinterpret_cast<void*>(v));
+  return v;
+}
+
+template <class _Tp>
+inline _LIBCPP_INLINE_VISIBILITY _Tp
+__libcpp_hq_atomic_refcount_decrement(_Tp& __t) _NOEXCEPT {
+  __hq_pointer_check(reinterpret_cast<const void**>(const_cast<long*>(__t.p())),
+                     reinterpret_cast<void*>(*__t.p()));
+#if defined(_LIBCPP_HAS_BUILTIN_ATOMIC_SUPPORT) &&                             \
+    !defined(_LIBCPP_HAS_NO_THREADS)
+  auto v = __atomic_add_fetch(__t.p(), -1, __ATOMIC_ACQ_REL);
+#else
+  auto v = __t += 1;
+#endif
+  __hq_pointer_define(
+      reinterpret_cast<const void**>(const_cast<long*>(__t.p())),
+      reinterpret_cast<void*>(v));
+  return v;
+}
+
 class _LIBCPP_EXCEPTION_ABI bad_hq_weak_ptr : public std::exception {
 public:
   virtual ~bad_hq_weak_ptr() _NOEXCEPT;
@@ -1167,11 +1202,11 @@ public:
 #else
   _LIBCPP_INLINE_VISIBILITY
   void __add_shared() _NOEXCEPT {
-    __libcpp_atomic_refcount_increment(__shared_owners_);
+    __libcpp_hq_atomic_refcount_increment(__shared_owners_);
   }
   _LIBCPP_INLINE_VISIBILITY
   bool __release_shared() _NOEXCEPT {
-    if (__libcpp_atomic_refcount_decrement(__shared_owners_) == -1) {
+    if (__libcpp_hq_atomic_refcount_decrement(__shared_owners_) == -1) {
       __on_zero_shared();
       return true;
     }
@@ -1180,7 +1215,11 @@ public:
 #endif
   _LIBCPP_INLINE_VISIBILITY
   long use_count() const _NOEXCEPT {
-    return __libcpp_relaxed_load(&__shared_owners_) + 1;
+    auto v = __libcpp_relaxed_load(__shared_owners_.p());
+    __hq_pointer_check(
+        reinterpret_cast<const void**>(const_cast<long*>(__shared_owners_.p())),
+        reinterpret_cast<void*>(v));
+    return v + 1;
   }
 };
 
@@ -1208,7 +1247,7 @@ public:
   void __add_shared() _NOEXCEPT { __hq_shared_count::__add_shared(); }
   _LIBCPP_INLINE_VISIBILITY
   void __add_weak() _NOEXCEPT {
-    __libcpp_atomic_refcount_increment(__shared_weak_owners_);
+    __libcpp_hq_atomic_refcount_increment(__shared_weak_owners_);
   }
   _LIBCPP_INLINE_VISIBILITY
   void __release_shared() _NOEXCEPT {
@@ -1234,12 +1273,12 @@ private:
 
 template <class _Tp, class _Dp, class _Alloc>
 class __hq_shared_ptr_pointer : public __hq_shared_weak_count {
-  __compressed_pair<__compressed_pair<_Tp, _Dp>, _Alloc> __data_;
+  __compressed_pair<__compressed_pair<hq_wrapper<_Tp>, _Dp>, _Alloc> __data_;
 
 public:
   _LIBCPP_INLINE_VISIBILITY
   __hq_shared_ptr_pointer(_Tp __p, _Dp __d, _Alloc __a)
-      : __data_(__compressed_pair<_Tp, _Dp>(__p, _VSTD::move(__d)),
+      : __data_(__compressed_pair<hq_wrapper<_Tp>, _Dp>(__p, _VSTD::move(__d)),
                 _VSTD::move(__a)) {}
 
 #ifndef _LIBCPP_NO_RTTI
@@ -1284,7 +1323,7 @@ void __hq_shared_ptr_pointer<_Tp, _Dp, _Alloc>::__on_zero_shared_weak()
 
 template <class _Tp, class _Alloc>
 class __hq_shared_ptr_emplace : public __hq_shared_weak_count {
-  __compressed_pair<_Alloc, _Tp> __data_;
+  __compressed_pair<_Alloc, hq_wrapper<_Tp> > __data_;
 
 public:
 #ifndef _LIBCPP_HAS_NO_VARIADICS
