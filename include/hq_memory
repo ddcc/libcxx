@@ -1139,7 +1139,7 @@ __libcpp_hq_atomic_refcount_increment(_Tp& __t) _NOEXCEPT {
 #endif
   __hq_pointer_define(
       reinterpret_cast<const void**>(const_cast<long*>(__t.p())),
-      reinterpret_cast<void*>(v));
+      reinterpret_cast<void*>(v), false);
   return v;
 }
 
@@ -1156,7 +1156,7 @@ __libcpp_hq_atomic_refcount_decrement(_Tp& __t) _NOEXCEPT {
 #endif
   __hq_pointer_define(
       reinterpret_cast<const void**>(const_cast<long*>(__t.p())),
-      reinterpret_cast<void*>(v));
+      reinterpret_cast<void*>(v), false);
   return v;
 }
 

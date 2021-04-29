@@ -103,11 +103,17 @@ _LIBCPP_BEGIN_NAMESPACE_STD
 
 template <class _CharT, // for <stdexcept>
           class _Traits = char_traits<_CharT>,
-          class _Allocator = allocator<_CharT> >
+          class _Allocator = allocator<_CharT>, bool _Private = false>
 class _LIBCPP_TEMPLATE_VIS hq_basic_string;
-typedef hq_basic_string<char, char_traits<char>, allocator<char> > hq_string;
-typedef hq_basic_string<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >
+typedef hq_basic_string<char, char_traits<char>, allocator<char>, false>
+    hq_string;
+typedef hq_basic_string<char, char_traits<char>, allocator<char>, true>
+    hq_private_string;
+typedef hq_basic_string<wchar_t, char_traits<wchar_t>, allocator<wchar_t>,
+                        false>
     hq_wstring;
+typedef hq_basic_string<wchar_t, char_traits<wchar_t>, allocator<wchar_t>, true>
+    hq_private_wstring;
 
 // Include other forward declarations here
 template <class _Tp, class _Alloc = allocator<_Tp> >

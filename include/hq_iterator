@@ -260,7 +260,7 @@ private:
 
   template <class _Up>
   friend class __hq_wrap_iter;
-  template <class _CharT, class _Traits, class _Alloc>
+  template <class _CharT, class _Traits, class _Alloc, bool _Private>
   friend class hq_basic_string;
   template <class _Tp, class _Alloc>
   friend class _LIBCPP_TEMPLATE_VIS hq_vector;

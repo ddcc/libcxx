@@ -482,37 +482,40 @@ _LIBCPP_BEGIN_NAMESPACE_STD
 
 // hq_basic_string
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>
-operator+(const hq_basic_string<_CharT, _Traits, _Allocator>& __x,
-          const hq_basic_string<_CharT, _Traits, _Allocator>& __y);
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>
+operator+(const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __x,
+          const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __y);
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>
 operator+(const _CharT* __x,
-          const hq_basic_string<_CharT, _Traits, _Allocator>& __y);
+          const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __y);
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>
-operator+(_CharT __x, const hq_basic_string<_CharT, _Traits, _Allocator>& __y);
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>
+operator+(_CharT __x,
+          const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __y);
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>
 operator+(const basic_string<_CharT, _Traits, _Allocator>& __x,
-          const hq_basic_string<_CharT, _Traits, _Allocator>& __y);
+          const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __y);
 
-template <class _CharT, class _Traits, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY hq_basic_string<_CharT, _Traits, _Allocator>
-operator+(const hq_basic_string<_CharT, _Traits, _Allocator>& __x,
-          const _CharT* __y);
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline _LIBCPP_INLINE_VISIBILITY
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>
+    operator+(const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __x,
+              const _CharT* __y);
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>
-operator+(const hq_basic_string<_CharT, _Traits, _Allocator>& __x, _CharT __y);
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>
+operator+(const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __x,
+          _CharT __y);
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>
-operator+(const hq_basic_string<_CharT, _Traits, _Allocator>& __x,
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>
+operator+(const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __x,
           const basic_string<_CharT, _Traits, _Allocator>& __y);
 
 _LIBCPP_EXTERN_TEMPLATE(
@@ -529,7 +532,7 @@ struct __can_be_converted_to_hq_string_view
                           hq_basic_string_view<_CharT, _Traits> >::value &&
            !is_convertible<const _Tp&, const _CharT*>::value)) {};
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 class _LIBCPP_TEMPLATE_VIS hq_basic_string
     : private __basic_string_common<true> {
 public:
@@ -643,7 +646,7 @@ private:
     };
   };
 
-  __compressed_pair<hq_wrapper<__rep>, allocator_type> __r_;
+  __compressed_pair<hq_wrapper<__rep, _Private>, allocator_type> __r_;
 
 public:
   static const size_type npos = -1;
@@ -1629,34 +1632,35 @@ hq_basic_string(_InputIterator, _InputIterator, _Allocator = _Allocator())
 
 template <
     class _CharT, class _Traits, class _Allocator = allocator<_CharT>,
+    bool _Private = false,
     class = typename enable_if<__is_allocator<_Allocator>::value, void>::type>
 explicit hq_basic_string(hq_basic_string_view<_CharT, _Traits>,
                          const _Allocator& = _Allocator())
-    -> hq_basic_string<_CharT, _Traits, _Allocator>;
+    -> hq_basic_string<_CharT, _Traits, _Allocator, _Private>;
 
 template <
     class _CharT, class _Traits, class _Allocator = allocator<_CharT>,
+    bool _Private = false,
     class = typename enable_if<__is_allocator<_Allocator>::value, void>::type,
     class _Sz = typename allocator_traits<_Allocator>::size_type>
 hq_basic_string(hq_basic_string_view<_CharT, _Traits>, _Sz, _Sz,
                 const _Allocator& = _Allocator())
-    -> hq_basic_string<_CharT, _Traits, _Allocator>;
+    -> hq_basic_string<_CharT, _Traits, _Allocator, _Private>;
 #endif
 
-template <class _CharT, class _Traits, class _Allocator>
-inline void
-hq_basic_string<_CharT, _Traits, _Allocator>::__invalidate_all_iterators() {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline void hq_basic_string<_CharT, _Traits, _Allocator,
+                            _Private>::__invalidate_all_iterators() {
 #if _LIBCPP_DEBUG_LEVEL >= 2
   __get_db()->__invalidate_all(this);
 #endif // _LIBCPP_DEBUG_LEVEL >= 2
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline void
-hq_basic_string<_CharT, _Traits, _Allocator>::__invalidate_iterators_past(
-    size_type
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline void hq_basic_string<_CharT, _Traits, _Allocator,
+                            _Private>::__invalidate_iterators_past(size_type
 #if _LIBCPP_DEBUG_LEVEL >= 2
-        __pos
+                                                                       __pos
 #endif
 ) {
 #if _LIBCPP_DEBUG_LEVEL >= 2
@@ -1677,16 +1681,16 @@ hq_basic_string<_CharT, _Traits, _Allocator>::__invalidate_iterators_past(
 #endif // _LIBCPP_DEBUG_LEVEL >= 2
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string()
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline hq_basic_string<_CharT, _Traits, _Allocator, _Private>::hq_basic_string()
     _NOEXCEPT_(is_nothrow_default_constructible<allocator_type>::value) {
 #if _LIBCPP_DEBUG_LEVEL >= 2
   __get_db()->__insert_c(this);
 #endif
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline hq_basic_string<_CharT, _Traits, _Allocator, _Private>::hq_basic_string(
     const allocator_type& __a)
 #if _LIBCPP_STD_VER <= 14
     _NOEXCEPT_(is_nothrow_copy_constructible<allocator_type>::value)
@@ -1699,10 +1703,9 @@ inline hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
 #endif
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-void hq_basic_string<_CharT, _Traits, _Allocator>::__init(const value_type* __s,
-                                                          size_type __sz,
-                                                          size_type __reserve) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+void hq_basic_string<_CharT, _Traits, _Allocator, _Private>::__init(
+    const value_type* __s, size_type __sz, size_type __reserve) {
   if (__reserve > max_size())
     this->__throw_length_error();
   pointer __p;
@@ -1718,13 +1721,13 @@ void hq_basic_string<_CharT, _Traits, _Allocator>::__init(const value_type* __s,
   }
   traits_type::copy(_VSTD::__to_raw_pointer(__p), __s, __sz);
   traits_type::assign(__p[__sz], value_type());
-  __hq_object_define(__p,
-                     ROUND_UP((__sz + 1) * sizeof(value_type), POINTER_ALIGN));
+  __hq_object_define(
+      __p, ROUND_UP((__sz + 1) * sizeof(value_type), POINTER_ALIGN), _Private);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-void hq_basic_string<_CharT, _Traits, _Allocator>::__init(const value_type* __s,
-                                                          size_type __sz) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+void hq_basic_string<_CharT, _Traits, _Allocator, _Private>::__init(
+    const value_type* __s, size_type __sz) {
   if (__sz > max_size())
     this->__throw_length_error();
   pointer __p;
@@ -1740,13 +1743,13 @@ void hq_basic_string<_CharT, _Traits, _Allocator>::__init(const value_type* __s,
   }
   traits_type::copy(_VSTD::__to_raw_pointer(__p), __s, __sz);
   traits_type::assign(__p[__sz], value_type());
-  __hq_object_define(__p,
-                     ROUND_UP((__sz + 1) * sizeof(value_type), POINTER_ALIGN));
+  __hq_object_define(
+      __p, ROUND_UP((__sz + 1) * sizeof(value_type), POINTER_ALIGN), _Private);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class>
-hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::hq_basic_string(
     const _CharT* __s, const _Allocator& __a)
     : __r_(__second_tag(), __a) {
   _LIBCPP_ASSERT(__s != nullptr,
@@ -1757,8 +1760,8 @@ hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
 #endif
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline hq_basic_string<_CharT, _Traits, _Allocator, _Private>::hq_basic_string(
     const _CharT* __s, size_type __n) {
   _LIBCPP_ASSERT(__n == 0 || __s != nullptr,
                  "hq_basic_string(const char*, n) detected nullptr");
@@ -1768,8 +1771,8 @@ inline hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
 #endif
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline hq_basic_string<_CharT, _Traits, _Allocator, _Private>::hq_basic_string(
     const _CharT* __s, size_type __n, const _Allocator& __a)
     : __r_(__second_tag(), __a) {
   _LIBCPP_ASSERT(__n == 0 || __s != nullptr,
@@ -1780,8 +1783,8 @@ inline hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
 #endif
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::hq_basic_string(
     const hq_basic_string& __str)
     : __r_(__second_tag(),
            __alloc_traits::select_on_container_copy_construction(
@@ -1796,8 +1799,8 @@ hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
 #endif
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::hq_basic_string(
     const hq_basic_string& __str, const allocator_type& __a)
     : __r_(__second_tag(), __a) {
   if (!__str.__is_long())
@@ -1812,8 +1815,8 @@ hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
 
 #ifndef _LIBCPP_CXX03_LANG
 
-template <class _CharT, class _Traits, class _Allocator>
-inline hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline hq_basic_string<_CharT, _Traits, _Allocator, _Private>::hq_basic_string(
     hq_basic_string&& __str)
 #if _LIBCPP_STD_VER <= 14
     _NOEXCEPT_(is_nothrow_move_constructible<allocator_type>::value)
@@ -1829,8 +1832,8 @@ inline hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
 #endif
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline hq_basic_string<_CharT, _Traits, _Allocator, _Private>::hq_basic_string(
     hq_basic_string&& __str, const allocator_type& __a)
     : __r_(__second_tag(), __a) {
   if (__str.__is_long() && __a != __str.__alloc()) // copy, not move
@@ -1849,9 +1852,9 @@ inline hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
 
 #endif // _LIBCPP_CXX03_LANG
 
-template <class _CharT, class _Traits, class _Allocator>
-void hq_basic_string<_CharT, _Traits, _Allocator>::__init(size_type __n,
-                                                          value_type __c) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+void hq_basic_string<_CharT, _Traits, _Allocator, _Private>::__init(
+    size_type __n, value_type __c) {
   if (__n > max_size())
     this->__throw_length_error();
   pointer __p;
@@ -1867,12 +1870,12 @@ void hq_basic_string<_CharT, _Traits, _Allocator>::__init(size_type __n,
   }
   traits_type::assign(_VSTD::__to_raw_pointer(__p), __n, __c);
   traits_type::assign(__p[__n], value_type());
-  __hq_object_define(__p,
-                     ROUND_UP((__n + 1) * sizeof(value_type), POINTER_ALIGN));
+  __hq_object_define(
+      __p, ROUND_UP((__n + 1) * sizeof(value_type), POINTER_ALIGN), _Private);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline hq_basic_string<_CharT, _Traits, _Allocator, _Private>::hq_basic_string(
     size_type __n, _CharT __c) {
   __init(__n, __c);
 #if _LIBCPP_DEBUG_LEVEL >= 2
@@ -1880,9 +1883,9 @@ inline hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
 #endif
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class>
-hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::hq_basic_string(
     size_type __n, _CharT __c, const _Allocator& __a)
     : __r_(__second_tag(), __a) {
   __init(__n, __c);
@@ -1891,8 +1894,8 @@ hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
 #endif
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::hq_basic_string(
     const hq_basic_string& __str, size_type __pos, size_type __n,
     const _Allocator& __a)
     : __r_(__second_tag(), __a) {
@@ -1905,8 +1908,8 @@ hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
 #endif
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline hq_basic_string<_CharT, _Traits, _Allocator, _Private>::hq_basic_string(
     const hq_basic_string& __str, size_type __pos, const _Allocator& __a)
     : __r_(__second_tag(), __a) {
   size_type __str_sz = __str.size();
@@ -1918,9 +1921,9 @@ inline hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
 #endif
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _Tp, class>
-hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::hq_basic_string(
     const _Tp& __t, size_type __pos, size_type __n, const allocator_type& __a)
     : __r_(__second_tag(), __a) {
   __self_view __sv0 = __t;
@@ -1931,9 +1934,10 @@ hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
 #endif
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _Tp, class>
-hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(const _Tp& __t) {
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::hq_basic_string(
+    const _Tp& __t) {
   __self_view __sv = __t;
   __init(__sv.data(), __sv.size());
 #if _LIBCPP_DEBUG_LEVEL >= 2
@@ -1941,9 +1945,9 @@ hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(const _Tp& __t) {
 #endif
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _Tp, class>
-hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::hq_basic_string(
     const _Tp& __t, const _Allocator& __a)
     : __r_(__second_tag(), __a) {
   __self_view __sv = __t;
@@ -1953,12 +1957,12 @@ hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
 #endif
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _InputIterator>
 typename enable_if<__is_exactly_input_iterator<_InputIterator>::value,
                    void>::type
-hq_basic_string<_CharT, _Traits, _Allocator>::__init(_InputIterator __first,
-                                                     _InputIterator __last) {
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::__init(
+    _InputIterator __first, _InputIterator __last) {
 #ifndef _LIBCPP_NO_EXCEPTIONS
   try {
 #endif // _LIBCPP_NO_EXCEPTIONS
@@ -1977,11 +1981,11 @@ hq_basic_string<_CharT, _Traits, _Allocator>::__init(_InputIterator __first,
 #endif // _LIBCPP_NO_EXCEPTIONS
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _ForwardIterator>
 typename enable_if<__is_forward_iterator<_ForwardIterator>::value, void>::type
-hq_basic_string<_CharT, _Traits, _Allocator>::__init(_ForwardIterator __first,
-                                                     _ForwardIterator __last) {
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::__init(
+    _ForwardIterator __first, _ForwardIterator __last) {
   size_type __sz = static_cast<size_type>(_VSTD::distance(__first, __last));
   if (__sz > max_size())
     this->__throw_length_error();
@@ -2000,13 +2004,13 @@ hq_basic_string<_CharT, _Traits, _Allocator>::__init(_ForwardIterator __first,
   for (; __first != __last; ++__first, (void)++__e)
     traits_type::assign(*__e, *__first);
   traits_type::assign(*__e, value_type());
-  __hq_object_define(__p,
-                     ROUND_UP((__sz + 1) * sizeof(value_type), POINTER_ALIGN));
+  __hq_object_define(
+      __p, ROUND_UP((__sz + 1) * sizeof(value_type), POINTER_ALIGN), _Private);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _InputIterator, class>
-inline hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
+inline hq_basic_string<_CharT, _Traits, _Allocator, _Private>::hq_basic_string(
     _InputIterator __first, _InputIterator __last) {
   __init(__first, __last);
 #if _LIBCPP_DEBUG_LEVEL >= 2
@@ -2014,9 +2018,9 @@ inline hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
 #endif
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _InputIterator, class>
-inline hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
+inline hq_basic_string<_CharT, _Traits, _Allocator, _Private>::hq_basic_string(
     _InputIterator __first, _InputIterator __last, const allocator_type& __a)
     : __r_(__second_tag(), __a) {
   __init(__first, __last);
@@ -2027,8 +2031,8 @@ inline hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
 
 #ifndef _LIBCPP_CXX03_LANG
 
-template <class _CharT, class _Traits, class _Allocator>
-inline hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline hq_basic_string<_CharT, _Traits, _Allocator, _Private>::hq_basic_string(
     initializer_list<_CharT> __il) {
   __init(__il.begin(), __il.end());
 #if _LIBCPP_DEBUG_LEVEL >= 2
@@ -2036,10 +2040,10 @@ inline hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
 #endif
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 inline
 
-    hq_basic_string<_CharT, _Traits, _Allocator>::hq_basic_string(
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>::hq_basic_string(
         initializer_list<_CharT> __il, const _Allocator& __a)
     : __r_(__second_tag(), __a) {
   __init(__il.begin(), __il.end());
@@ -2050,8 +2054,8 @@ inline
 
 #endif // _LIBCPP_CXX03_LANG
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>::~hq_basic_string() {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::~hq_basic_string() {
 #if _LIBCPP_DEBUG_LEVEL >= 2
   __get_db()->__erase_c(this);
 #endif
@@ -2064,11 +2068,12 @@ hq_basic_string<_CharT, _Traits, _Allocator>::~hq_basic_string() {
   }
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-void hq_basic_string<_CharT, _Traits, _Allocator>::__grow_by_and_replace(
-    size_type __old_cap, size_type __delta_cap, size_type __old_sz,
-    size_type __n_copy, size_type __n_del, size_type __n_add,
-    const value_type* __p_new_stuff) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+void hq_basic_string<_CharT, _Traits, _Allocator, _Private>::
+    __grow_by_and_replace(size_type __old_cap, size_type __delta_cap,
+                          size_type __old_sz, size_type __n_copy,
+                          size_type __n_del, size_type __n_add,
+                          const value_type* __p_new_stuff) {
   size_type __ms = max_size();
   if (__delta_cap > __ms - __old_cap - 1)
     this->__throw_length_error();
@@ -2101,11 +2106,12 @@ void hq_basic_string<_CharT, _Traits, _Allocator>::__grow_by_and_replace(
   __set_long_size(__old_sz);
   traits_type::assign(__p[__old_sz], value_type());
   __hq_object_define(
-      __p, ROUND_UP((__old_sz + 1) * sizeof(value_type), POINTER_ALIGN));
+      __p, ROUND_UP((__old_sz + 1) * sizeof(value_type), POINTER_ALIGN),
+      _Private);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-void hq_basic_string<_CharT, _Traits, _Allocator>::__grow_by(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+void hq_basic_string<_CharT, _Traits, _Allocator, _Private>::__grow_by(
     size_type __old_cap, size_type __delta_cap, size_type __old_sz,
     size_type __n_copy, size_type __n_del, size_type __n_add) {
   size_type __ms = max_size();
@@ -2134,15 +2140,16 @@ void hq_basic_string<_CharT, _Traits, _Allocator>::__grow_by(
   __set_long_pointer(__p);
   __set_long_cap(__cap + 1);
   __hq_object_define(
-      __p, ROUND_UP((__old_sz + 1) * sizeof(value_type), POINTER_ALIGN));
+      __p, ROUND_UP((__old_sz + 1) * sizeof(value_type), POINTER_ALIGN),
+      _Private);
 }
 
 // assign
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::assign(const value_type* __s,
-                                                     size_type __n) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::assign(
+    const value_type* __s, size_type __n) {
   _LIBCPP_ASSERT(__n == 0 || __s != nullptr,
                  "hq_string::assign received nullptr");
   size_type __cap = capacity();
@@ -2150,8 +2157,8 @@ hq_basic_string<_CharT, _Traits, _Allocator>::assign(const value_type* __s,
     value_type* __p = _VSTD::__to_raw_pointer(__get_pointer());
     traits_type::move(__p, __s, __n);
     traits_type::assign(__p[__n], value_type());
-    __hq_object_define(__p,
-                       ROUND_UP((__n + 1) * sizeof(value_type), POINTER_ALIGN));
+    __hq_object_define(
+        __p, ROUND_UP((__n + 1) * sizeof(value_type), POINTER_ALIGN), _Private);
     __set_size(__n);
     __invalidate_iterators_past(__n);
   } else {
@@ -2161,10 +2168,10 @@ hq_basic_string<_CharT, _Traits, _Allocator>::assign(const value_type* __s,
   return *this;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::assign(size_type __n,
-                                                     value_type __c) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::assign(size_type __n,
+                                                               value_type __c) {
   size_type __cap = capacity();
   if (__cap < __n) {
     size_type __sz = size();
@@ -2174,15 +2181,16 @@ hq_basic_string<_CharT, _Traits, _Allocator>::assign(size_type __n,
   value_type* __p = _VSTD::__to_raw_pointer(__get_pointer());
   traits_type::assign(__p, __n, __c);
   traits_type::assign(__p[__n], value_type());
-  __hq_object_define(__p,
-                     ROUND_UP((__n + 1) * sizeof(value_type), POINTER_ALIGN));
+  __hq_object_define(
+      __p, ROUND_UP((__n + 1) * sizeof(value_type), POINTER_ALIGN), _Private);
   __set_size(__n);
   return *this;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::operator=(value_type __c) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::operator=(
+    value_type __c) {
   pointer __p;
   if (__is_long()) {
     __p = __get_long_pointer();
@@ -2194,14 +2202,14 @@ hq_basic_string<_CharT, _Traits, _Allocator>::operator=(value_type __c) {
   traits_type::assign(*__p, __c);
   traits_type::assign(*(__p + 1), value_type());
   __hq_pointer_define(const_cast<const void**>(reinterpret_cast<void**>(__p)),
-                      reinterpret_cast<void*>(*__p));
+                      reinterpret_cast<void*>(*__p), _Private);
   __invalidate_iterators_past(1);
   return *this;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::operator=(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::operator=(
     const hq_basic_string& __str) {
   if (this != &__str) {
     __copy_assign_alloc(__str);
@@ -2212,8 +2220,9 @@ hq_basic_string<_CharT, _Traits, _Allocator>::operator=(
 
 #ifndef _LIBCPP_CXX03_LANG
 
-template <class _CharT, class _Traits, class _Allocator>
-inline void hq_basic_string<_CharT, _Traits, _Allocator>::__move_assign(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline void
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::__move_assign(
     hq_basic_string& __str, false_type)
     _NOEXCEPT_(__alloc_traits::is_always_equal::value) {
   if (__alloc() != __str.__alloc())
@@ -2222,8 +2231,9 @@ inline void hq_basic_string<_CharT, _Traits, _Allocator>::__move_assign(
     __move_assign(__str, true_type());
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline void hq_basic_string<_CharT, _Traits, _Allocator>::__move_assign(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline void
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::__move_assign(
     hq_basic_string& __str, true_type)
 #if _LIBCPP_STD_VER > 14
     _NOEXCEPT
@@ -2237,9 +2247,10 @@ inline void hq_basic_string<_CharT, _Traits, _Allocator>::__move_assign(
   __str.__zero();
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::operator=(hq_basic_string&& __str)
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::operator=(
+    hq_basic_string&& __str)
     _NOEXCEPT_(
         (__noexcept_move_assign_container<_Allocator, __alloc_traits>::value)) {
   __move_assign(
@@ -2252,27 +2263,27 @@ hq_basic_string<_CharT, _Traits, _Allocator>::operator=(hq_basic_string&& __str)
 
 #endif
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _InputIterator>
 typename enable_if<
     __is_exactly_input_iterator<_InputIterator>::value ||
         !__libcpp_string_gets_noexcept_iterator<_InputIterator>::value,
-    hq_basic_string<_CharT, _Traits, _Allocator>&>::type
-hq_basic_string<_CharT, _Traits, _Allocator>::assign(_InputIterator __first,
-                                                     _InputIterator __last) {
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>&>::type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::assign(
+    _InputIterator __first, _InputIterator __last) {
   const hq_basic_string __temp(__first, __last, __alloc());
   assign(__temp.data(), __temp.size());
   return *this;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _ForwardIterator>
 typename enable_if<
     __is_forward_iterator<_ForwardIterator>::value &&
         __libcpp_string_gets_noexcept_iterator<_ForwardIterator>::value,
-    hq_basic_string<_CharT, _Traits, _Allocator>&>::type
-hq_basic_string<_CharT, _Traits, _Allocator>::assign(_ForwardIterator __first,
-                                                     _ForwardIterator __last) {
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>&>::type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::assign(
+    _ForwardIterator __first, _ForwardIterator __last) {
   size_type __n = static_cast<size_type>(_VSTD::distance(__first, __last));
   size_type __cap = capacity();
   if (__cap < __n) {
@@ -2284,15 +2295,15 @@ hq_basic_string<_CharT, _Traits, _Allocator>::assign(_ForwardIterator __first,
   for (; __first != __last; ++__first, ++__e)
     traits_type::assign(*__e, *__first);
   traits_type::assign(*__e, value_type());
-  __hq_object_define(__p,
-                     ROUND_UP((__n + 1) * sizeof(value_type), POINTER_ALIGN));
+  __hq_object_define(
+      __p, ROUND_UP((__n + 1) * sizeof(value_type), POINTER_ALIGN), _Private);
   __set_size(__n);
   return *this;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::assign(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::assign(
     const hq_basic_string& __str, size_type __pos, size_type __n) {
   size_type __sz = __str.size();
   if (__pos > __sz)
@@ -2300,14 +2311,14 @@ hq_basic_string<_CharT, _Traits, _Allocator>::assign(
   return assign(__str.data() + __pos, _VSTD::min(__n, __sz - __pos));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _Tp>
 typename enable_if<
     __can_be_converted_to_hq_string_view<_CharT, _Traits, _Tp>::value,
-    hq_basic_string<_CharT, _Traits, _Allocator>&>::type
-hq_basic_string<_CharT, _Traits, _Allocator>::assign(const _Tp& __t,
-                                                     size_type __pos,
-                                                     size_type __n) {
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>&>::type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::assign(const _Tp& __t,
+                                                               size_type __pos,
+                                                               size_type __n) {
   __self_view __sv = __t;
   size_type __sz = __sv.size();
   if (__pos > __sz)
@@ -2315,19 +2326,20 @@ hq_basic_string<_CharT, _Traits, _Allocator>::assign(const _Tp& __t,
   return assign(__sv.data() + __pos, _VSTD::min(__n, __sz - __pos));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::assign(const value_type* __s) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::assign(
+    const value_type* __s) {
   _LIBCPP_ASSERT(__s != nullptr, "hq_string::assign received nullptr");
   return assign(__s, traits_type::length(__s));
 }
 
 // append
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::append(const value_type* __s,
-                                                     size_type __n) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::append(
+    const value_type* __s, size_type __n) {
   _LIBCPP_ASSERT(__n == 0 || __s != nullptr,
                  "hq_string::append received nullptr");
   size_type __cap = capacity();
@@ -2343,17 +2355,18 @@ hq_basic_string<_CharT, _Traits, _Allocator>::append(const value_type* __s,
           ROUND_UP(
               (UNALIGN(__sz, sizeof(void*) / sizeof(value_type)) + __n + 1) *
                   sizeof(value_type),
-              POINTER_ALIGN));
+              POINTER_ALIGN),
+          _Private);
     }
   } else
     __grow_by_and_replace(__cap, __sz + __n - __cap, __sz, __sz, 0, __n, __s);
   return *this;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::append(size_type __n,
-                                                     value_type __c) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::append(size_type __n,
+                                                               value_type __c) {
   if (__n) {
     size_type __cap = capacity();
     size_type __sz = size();
@@ -2367,13 +2380,15 @@ hq_basic_string<_CharT, _Traits, _Allocator>::append(size_type __n,
         __p + ALIGN(__sz, sizeof(void*) / sizeof(value_type)),
         ROUND_UP((UNALIGN(__sz, sizeof(void*) / sizeof(value_type)) + __n + 1) *
                      sizeof(value_type),
-                 POINTER_ALIGN));
+                 POINTER_ALIGN),
+        _Private);
   }
   return *this;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline void hq_basic_string<_CharT, _Traits, _Allocator>::__append_default_init(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline void
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::__append_default_init(
     size_type __n) {
   if (__n) {
     size_type __cap = capacity();
@@ -2387,12 +2402,14 @@ inline void hq_basic_string<_CharT, _Traits, _Allocator>::__append_default_init(
         __p + ALIGN(__sz, sizeof(void*) / sizeof(value_type)),
         ROUND_UP((UNALIGN(__sz, sizeof(void*) / sizeof(value_type)) + __n + 1) *
                      sizeof(value_type),
-                 POINTER_ALIGN));
+                 POINTER_ALIGN),
+        _Private);
   }
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-void hq_basic_string<_CharT, _Traits, _Allocator>::push_back(value_type __c) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+void hq_basic_string<_CharT, _Traits, _Allocator, _Private>::push_back(
+    value_type __c) {
   bool __is_short = !__is_long();
   size_type __cap;
   size_type __sz;
@@ -2421,13 +2438,14 @@ void hq_basic_string<_CharT, _Traits, _Allocator>::push_back(value_type __c) {
       __p + ALIGN(__sz, sizeof(void*) / sizeof(value_type)),
       ROUND_UP((UNALIGN(__sz, sizeof(void*) / sizeof(value_type)) + 1 + 1) *
                    sizeof(value_type),
-               POINTER_ALIGN));
+               POINTER_ALIGN),
+      _Private);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _ForwardIterator>
-hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::__append_forward_unsafe(
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::__append_forward_unsafe(
     _ForwardIterator __first, _ForwardIterator __last) {
   static_assert(__is_forward_iterator<_ForwardIterator>::value,
                 "function requires a ForwardIterator");
@@ -2452,23 +2470,24 @@ hq_basic_string<_CharT, _Traits, _Allocator>::__append_forward_unsafe(
           ROUND_UP(
               (UNALIGN(__sz, sizeof(void*) / sizeof(value_type)) + __n + 1) *
                   sizeof(value_type),
-              POINTER_ALIGN));
+              POINTER_ALIGN),
+          _Private);
       __set_size(__sz + __n);
     }
   }
   return *this;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::append(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::append(
     const hq_basic_string& __str) {
   return append(__str.data(), __str.size());
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::append(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::append(
     const hq_basic_string& __str, size_type __pos, size_type __n) {
   size_type __sz = __str.size();
   if (__pos > __sz)
@@ -2476,14 +2495,14 @@ hq_basic_string<_CharT, _Traits, _Allocator>::append(
   return append(__str.data() + __pos, _VSTD::min(__n, __sz - __pos));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _Tp>
 typename enable_if<
     __can_be_converted_to_hq_string_view<_CharT, _Traits, _Tp>::value,
-    hq_basic_string<_CharT, _Traits, _Allocator>&>::type
-hq_basic_string<_CharT, _Traits, _Allocator>::append(const _Tp& __t,
-                                                     size_type __pos,
-                                                     size_type __n) {
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>&>::type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::append(const _Tp& __t,
+                                                               size_type __pos,
+                                                               size_type __n) {
   __self_view __sv = __t;
   size_type __sz = __sv.size();
   if (__pos > __sz)
@@ -2491,20 +2510,20 @@ hq_basic_string<_CharT, _Traits, _Allocator>::append(const _Tp& __t,
   return append(__sv.data() + __pos, _VSTD::min(__n, __sz - __pos));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::append(const value_type* __s) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::append(
+    const value_type* __s) {
   _LIBCPP_ASSERT(__s != nullptr, "hq_string::append received nullptr");
   return append(__s, traits_type::length(__s));
 }
 
 // insert
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::insert(size_type __pos,
-                                                     const value_type* __s,
-                                                     size_type __n) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::insert(
+    size_type __pos, const value_type* __s, size_type __n) {
   _LIBCPP_ASSERT(__n == 0 || __s != nullptr,
                  "hq_string::insert received nullptr");
   size_type __sz = size();
@@ -2529,18 +2548,19 @@ hq_basic_string<_CharT, _Traits, _Allocator>::insert(size_type __pos,
           ROUND_UP(
               (UNALIGN(__pos, sizeof(void*) / sizeof(value_type)) + __n + 1) *
                   sizeof(value_type),
-              POINTER_ALIGN));
+              POINTER_ALIGN),
+          _Private);
     }
   } else
     __grow_by_and_replace(__cap, __sz + __n - __cap, __sz, __pos, 0, __n, __s);
   return *this;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::insert(size_type __pos,
-                                                     size_type __n,
-                                                     value_type __c) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::insert(size_type __pos,
+                                                               size_type __n,
+                                                               value_type __c) {
   size_type __sz = size();
   if (__pos > __sz)
     this->__throw_out_of_range();
@@ -2565,20 +2585,21 @@ hq_basic_string<_CharT, _Traits, _Allocator>::insert(size_type __pos,
         ROUND_UP(
             (UNALIGN(__pos, sizeof(void*) / sizeof(value_type)) + __n + 1) *
                 sizeof(value_type),
-            POINTER_ALIGN));
+            POINTER_ALIGN),
+        _Private);
   }
   return *this;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _InputIterator>
 typename enable_if<
     __is_exactly_input_iterator<_InputIterator>::value ||
         !__libcpp_string_gets_noexcept_iterator<_InputIterator>::value,
-    typename hq_basic_string<_CharT, _Traits, _Allocator>::iterator>::type
-hq_basic_string<_CharT, _Traits, _Allocator>::insert(const_iterator __pos,
-                                                     _InputIterator __first,
-                                                     _InputIterator __last) {
+    typename hq_basic_string<_CharT, _Traits, _Allocator,
+                             _Private>::iterator>::type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::insert(
+    const_iterator __pos, _InputIterator __first, _InputIterator __last) {
 #if _LIBCPP_DEBUG_LEVEL >= 2
   _LIBCPP_ASSERT(
       __get_const_db()->__find_c_from_i(&__pos) == this,
@@ -2589,15 +2610,15 @@ hq_basic_string<_CharT, _Traits, _Allocator>::insert(const_iterator __pos,
   return insert(__pos, __temp.data(), __temp.data() + __temp.size());
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _ForwardIterator>
 typename enable_if<
     __is_forward_iterator<_ForwardIterator>::value &&
         __libcpp_string_gets_noexcept_iterator<_ForwardIterator>::value,
-    typename hq_basic_string<_CharT, _Traits, _Allocator>::iterator>::type
-hq_basic_string<_CharT, _Traits, _Allocator>::insert(const_iterator __pos,
-                                                     _ForwardIterator __first,
-                                                     _ForwardIterator __last) {
+    typename hq_basic_string<_CharT, _Traits, _Allocator,
+                             _Private>::iterator>::type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::insert(
+    const_iterator __pos, _ForwardIterator __first, _ForwardIterator __last) {
 #if _LIBCPP_DEBUG_LEVEL >= 2
   _LIBCPP_ASSERT(
       __get_const_db()->__find_c_from_i(&__pos) == this,
@@ -2636,21 +2657,22 @@ hq_basic_string<_CharT, _Traits, _Allocator>::insert(const_iterator __pos,
         __p + ALIGN(__ip, sizeof(void*) / sizeof(value_type)),
         ROUND_UP((UNALIGN(__ip, sizeof(void*) / sizeof(value_type)) + __n + 1) *
                      sizeof(value_type),
-                 POINTER_ALIGN));
+                 POINTER_ALIGN),
+        _Private);
   }
   return begin() + __ip;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::insert(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::insert(
     size_type __pos1, const hq_basic_string& __str) {
   return insert(__pos1, __str.data(), __str.size());
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::insert(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::insert(
     size_type __pos1, const hq_basic_string& __str, size_type __pos2,
     size_type __n) {
   size_type __str_sz = __str.size();
@@ -2660,15 +2682,15 @@ hq_basic_string<_CharT, _Traits, _Allocator>::insert(
                 _VSTD::min(__n, __str_sz - __pos2));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _Tp>
 typename enable_if<
     __can_be_converted_to_hq_string_view<_CharT, _Traits, _Tp>::value,
-    hq_basic_string<_CharT, _Traits, _Allocator>&>::type
-hq_basic_string<_CharT, _Traits, _Allocator>::insert(size_type __pos1,
-                                                     const _Tp& __t,
-                                                     size_type __pos2,
-                                                     size_type __n) {
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>&>::type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::insert(size_type __pos1,
+                                                               const _Tp& __t,
+                                                               size_type __pos2,
+                                                               size_type __n) {
   __self_view __sv = __t;
   size_type __str_sz = __sv.size();
   if (__pos2 > __str_sz)
@@ -2677,18 +2699,18 @@ hq_basic_string<_CharT, _Traits, _Allocator>::insert(size_type __pos1,
                 _VSTD::min(__n, __str_sz - __pos2));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::insert(size_type __pos,
-                                                     const value_type* __s) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::insert(
+    size_type __pos, const value_type* __s) {
   _LIBCPP_ASSERT(__s != nullptr, "hq_string::insert received nullptr");
   return insert(__pos, __s, traits_type::length(__s));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-typename hq_basic_string<_CharT, _Traits, _Allocator>::iterator
-hq_basic_string<_CharT, _Traits, _Allocator>::insert(const_iterator __pos,
-                                                     value_type __c) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::iterator
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::insert(
+    const_iterator __pos, value_type __c) {
   size_type __ip = static_cast<size_type>(__pos - begin());
   size_type __sz = size();
   size_type __cap = capacity();
@@ -2708,16 +2730,16 @@ hq_basic_string<_CharT, _Traits, _Allocator>::insert(const_iterator __pos,
       __p + ALIGN(__ip, sizeof(void*) / sizeof(value_type)),
       ROUND_UP((UNALIGN(__ip, sizeof(void*) / sizeof(value_type)) + 1 + 1) *
                    sizeof(value_type),
-               POINTER_ALIGN));
+               POINTER_ALIGN),
+      _Private);
   __set_size(__sz);
   return begin() + static_cast<difference_type>(__ip);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::iterator
-hq_basic_string<_CharT, _Traits, _Allocator>::insert(const_iterator __pos,
-                                                     size_type __n,
-                                                     value_type __c) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::iterator
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::insert(
+    const_iterator __pos, size_type __n, value_type __c) {
 #if _LIBCPP_DEBUG_LEVEL >= 2
   _LIBCPP_ASSERT(
       __get_const_db()->__find_c_from_i(&__pos) == this,
@@ -2731,9 +2753,9 @@ hq_basic_string<_CharT, _Traits, _Allocator>::insert(const_iterator __pos,
 
 // replace
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::replace(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::replace(
     size_type __pos, size_type __n1, const value_type* __s,
     size_type __n2) _LIBCPP_DISABLE_UBSAN_UNSIGNED_INTEGER_CHECK {
   _LIBCPP_ASSERT(__n2 == 0 || __s != nullptr,
@@ -2782,16 +2804,17 @@ hq_basic_string<_CharT, _Traits, _Allocator>::replace(
         ROUND_UP((UNALIGN(__pos, sizeof(void*) / sizeof(value_type)) + __sz -
                   __pos + 1) *
                      sizeof(value_type),
-                 POINTER_ALIGN));
+                 POINTER_ALIGN),
+        _Private);
   } else
     __grow_by_and_replace(__cap, __sz - __n1 + __n2 - __cap, __sz, __pos, __n1,
                           __n2, __s);
   return *this;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::replace(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::replace(
     size_type __pos, size_type __n1, size_type __n2,
     value_type __c) _LIBCPP_DISABLE_UBSAN_UNSIGNED_INTEGER_CHECK {
   size_type __sz = size();
@@ -2821,32 +2844,33 @@ hq_basic_string<_CharT, _Traits, _Allocator>::replace(
       ROUND_UP((UNALIGN(__pos, sizeof(void*) / sizeof(value_type)) + __sz -
                 __pos + 1) *
                    sizeof(value_type),
-               POINTER_ALIGN));
+               POINTER_ALIGN),
+      _Private);
   return *this;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _InputIterator>
-typename enable_if<__is_input_iterator<_InputIterator>::value,
-                   hq_basic_string<_CharT, _Traits, _Allocator>&>::type
-hq_basic_string<_CharT, _Traits, _Allocator>::replace(const_iterator __i1,
-                                                      const_iterator __i2,
-                                                      _InputIterator __j1,
-                                                      _InputIterator __j2) {
+typename enable_if<
+    __is_input_iterator<_InputIterator>::value,
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>&>::type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::replace(
+    const_iterator __i1, const_iterator __i2, _InputIterator __j1,
+    _InputIterator __j2) {
   const hq_basic_string __temp(__j1, __j2, __alloc());
   return this->replace(__i1, __i2, __temp);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::replace(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::replace(
     size_type __pos1, size_type __n1, const hq_basic_string& __str) {
   return replace(__pos1, __n1, __str.data(), __str.size());
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::replace(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::replace(
     size_type __pos1, size_type __n1, const hq_basic_string& __str,
     size_type __pos2, size_type __n2) {
   size_type __str_sz = __str.size();
@@ -2856,16 +2880,14 @@ hq_basic_string<_CharT, _Traits, _Allocator>::replace(
                  _VSTD::min(__n2, __str_sz - __pos2));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _Tp>
 typename enable_if<
     __can_be_converted_to_hq_string_view<_CharT, _Traits, _Tp>::value,
-    hq_basic_string<_CharT, _Traits, _Allocator>&>::type
-hq_basic_string<_CharT, _Traits, _Allocator>::replace(size_type __pos1,
-                                                      size_type __n1,
-                                                      const _Tp& __t,
-                                                      size_type __pos2,
-                                                      size_type __n2) {
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>&>::type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::replace(
+    size_type __pos1, size_type __n1, const _Tp& __t, size_type __pos2,
+    size_type __n2) {
   __self_view __sv = __t;
   size_type __str_sz = __sv.size();
   if (__pos2 > __str_sz)
@@ -2874,59 +2896,54 @@ hq_basic_string<_CharT, _Traits, _Allocator>::replace(size_type __pos1,
                  _VSTD::min(__n2, __str_sz - __pos2));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::replace(size_type __pos,
-                                                      size_type __n1,
-                                                      const value_type* __s) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::replace(
+    size_type __pos, size_type __n1, const value_type* __s) {
   _LIBCPP_ASSERT(__s != nullptr, "hq_string::replace received nullptr");
   return replace(__pos, __n1, __s, traits_type::length(__s));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::replace(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::replace(
     const_iterator __i1, const_iterator __i2, const hq_basic_string& __str) {
   return replace(static_cast<size_type>(__i1 - begin()),
                  static_cast<size_type>(__i2 - __i1), __str.data(),
                  __str.size());
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::replace(const_iterator __i1,
-                                                      const_iterator __i2,
-                                                      const value_type* __s,
-                                                      size_type __n) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::replace(
+    const_iterator __i1, const_iterator __i2, const value_type* __s,
+    size_type __n) {
   return replace(static_cast<size_type>(__i1 - begin()),
                  static_cast<size_type>(__i2 - __i1), __s, __n);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::replace(const_iterator __i1,
-                                                      const_iterator __i2,
-                                                      const value_type* __s) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::replace(
+    const_iterator __i1, const_iterator __i2, const value_type* __s) {
   return replace(static_cast<size_type>(__i1 - begin()),
                  static_cast<size_type>(__i2 - __i1), __s);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::replace(const_iterator __i1,
-                                                      const_iterator __i2,
-                                                      size_type __n,
-                                                      value_type __c) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::replace(
+    const_iterator __i1, const_iterator __i2, size_type __n, value_type __c) {
   return replace(static_cast<size_type>(__i1 - begin()),
                  static_cast<size_type>(__i2 - __i1), __n, __c);
 }
 
 // erase
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>&
-hq_basic_string<_CharT, _Traits, _Allocator>::erase(size_type __pos,
-                                                    size_type __n) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>&
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::erase(size_type __pos,
+                                                              size_type __n) {
   size_type __sz = size();
   if (__pos > __sz)
     this->__throw_out_of_range();
@@ -2944,7 +2961,8 @@ hq_basic_string<_CharT, _Traits, _Allocator>::erase(size_type __pos,
         const_cast<const void**>(reinterpret_cast<void**>(
             __p + ALIGN(__pos, sizeof(void*) / sizeof(value_type)))),
         reinterpret_cast<void*>(*reinterpret_cast<uint64_t*>(
-            __p + ALIGN(__pos, sizeof(void*) / sizeof(value_type)))));
+            __p + ALIGN(__pos, sizeof(void*) / sizeof(value_type)))),
+        _Private);
     __hq_object_invalidate(
         __p + ROUND_UP(__pos, sizeof(void*) / sizeof(value_type)),
         ROUND_UP(
@@ -2955,9 +2973,10 @@ hq_basic_string<_CharT, _Traits, _Allocator>::erase(size_type __pos,
   return *this;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::iterator
-hq_basic_string<_CharT, _Traits, _Allocator>::erase(const_iterator __pos) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::iterator
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::erase(
+    const_iterator __pos) {
 #if _LIBCPP_DEBUG_LEVEL >= 2
   _LIBCPP_ASSERT(__get_const_db()->__find_c_from_i(&__pos) == this,
                  "hq_string::erase(iterator) called with an iterator not"
@@ -2972,10 +2991,10 @@ hq_basic_string<_CharT, _Traits, _Allocator>::erase(const_iterator __pos) {
   return __b + static_cast<difference_type>(__r);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::iterator
-hq_basic_string<_CharT, _Traits, _Allocator>::erase(const_iterator __first,
-                                                    const_iterator __last) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::iterator
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::erase(
+    const_iterator __first, const_iterator __last) {
 #if _LIBCPP_DEBUG_LEVEL >= 2
   _LIBCPP_ASSERT(
       __get_const_db()->__find_c_from_i(&__first) == this,
@@ -2990,8 +3009,8 @@ hq_basic_string<_CharT, _Traits, _Allocator>::erase(const_iterator __first,
   return __b + static_cast<difference_type>(__r);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline void hq_basic_string<_CharT, _Traits, _Allocator>::pop_back() {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline void hq_basic_string<_CharT, _Traits, _Allocator, _Private>::pop_back() {
   _LIBCPP_ASSERT(!empty(), "hq_string::pop_back(): hq_string is already empty");
   size_type __sz;
   pointer __p;
@@ -3010,12 +3029,14 @@ inline void hq_basic_string<_CharT, _Traits, _Allocator>::pop_back() {
       __p + ALIGN(__sz, sizeof(void*) / sizeof(value_type)),
       ROUND_UP(UNALIGN(__sz, sizeof(void*) / sizeof(value_type)) *
                    sizeof(value_type),
-               POINTER_ALIGN));
+               POINTER_ALIGN),
+      _Private);
   __invalidate_iterators_past(__sz);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline void hq_basic_string<_CharT, _Traits, _Allocator>::clear() _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline void
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::clear() _NOEXCEPT {
   __invalidate_all_iterators();
   pointer __p;
   if (__is_long()) {
@@ -3027,12 +3048,14 @@ inline void hq_basic_string<_CharT, _Traits, _Allocator>::clear() _NOEXCEPT {
     traits_type::assign(*__p, value_type());
     __set_short_size(0);
   }
-  __hq_object_define(__p, ROUND_UP(1 * sizeof(value_type), POINTER_ALIGN));
+  __hq_object_define(__p, ROUND_UP(1 * sizeof(value_type), POINTER_ALIGN),
+                     _Private);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 inline void
-hq_basic_string<_CharT, _Traits, _Allocator>::__erase_to_end(size_type __pos) {
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::__erase_to_end(
+    size_type __pos) {
   pointer __p;
   if (__is_long()) {
     __p = __get_long_pointer();
@@ -3047,13 +3070,14 @@ hq_basic_string<_CharT, _Traits, _Allocator>::__erase_to_end(size_type __pos) {
       __p + ALIGN(__pos, sizeof(void*) / sizeof(value_type)),
       ROUND_UP(UNALIGN(__pos, sizeof(void*) / sizeof(value_type)) *
                    sizeof(value_type),
-               POINTER_ALIGN));
+               POINTER_ALIGN),
+      _Private);
   __invalidate_iterators_past(__pos);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-void hq_basic_string<_CharT, _Traits, _Allocator>::resize(size_type __n,
-                                                          value_type __c) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+void hq_basic_string<_CharT, _Traits, _Allocator, _Private>::resize(
+    size_type __n, value_type __c) {
   size_type __sz = size();
   if (__n > __sz)
     append(__n - __sz, __c);
@@ -3061,8 +3085,9 @@ void hq_basic_string<_CharT, _Traits, _Allocator>::resize(size_type __n,
     __erase_to_end(__n);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline void hq_basic_string<_CharT, _Traits, _Allocator>::__resize_default_init(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline void
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::__resize_default_init(
     size_type __n) {
   size_type __sz = size();
   if (__n > __sz) {
@@ -3071,9 +3096,11 @@ inline void hq_basic_string<_CharT, _Traits, _Allocator>::__resize_default_init(
     __erase_to_end(__n);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::max_size() const _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline
+    typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>::max_size()
+        const _NOEXCEPT {
   size_type __m = __alloc_traits::max_size(__alloc());
 #ifdef _LIBCPP_BIG_ENDIAN
   return (__m <= ~__long_mask ? __m : __m / 2) - __alignment;
@@ -3082,8 +3109,8 @@ hq_basic_string<_CharT, _Traits, _Allocator>::max_size() const _NOEXCEPT {
 #endif
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-void hq_basic_string<_CharT, _Traits, _Allocator>::reserve(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+void hq_basic_string<_CharT, _Traits, _Allocator, _Private>::reserve(
     size_type __res_arg) {
   if (__res_arg > max_size())
     this->__throw_length_error();
@@ -3132,78 +3159,86 @@ void hq_basic_string<_CharT, _Traits, _Allocator>::reserve(
       __set_long_size(__sz);
       __set_long_pointer(__new_data);
       __hq_object_define(
-          __new_data, ROUND_UP((__sz + 1) * sizeof(value_type), POINTER_ALIGN));
+          __new_data, ROUND_UP((__sz + 1) * sizeof(value_type), POINTER_ALIGN),
+          _Private);
     } else
       __set_short_size(__sz);
     __invalidate_all_iterators();
   }
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::const_reference
-hq_basic_string<_CharT, _Traits, _Allocator>::operator[](
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline typename hq_basic_string<_CharT, _Traits, _Allocator,
+                                _Private>::const_reference
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::operator[](
     size_type __pos) const _NOEXCEPT {
   _LIBCPP_ASSERT(__pos <= size(), "hq_string index out of bounds");
   return *(data() + __pos);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::reference
-hq_basic_string<_CharT, _Traits, _Allocator>::operator[](
-    size_type __pos) _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline
+    typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::reference
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>::operator[](
+        size_type __pos) _NOEXCEPT {
   _LIBCPP_ASSERT(__pos <= size(), "hq_string index out of bounds");
   return *(__get_pointer() + __pos);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-typename hq_basic_string<_CharT, _Traits, _Allocator>::const_reference
-hq_basic_string<_CharT, _Traits, _Allocator>::at(size_type __n) const {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::const_reference
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::at(
+    size_type __n) const {
   if (__n >= size())
     this->__throw_out_of_range();
   return (*this)[__n];
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-typename hq_basic_string<_CharT, _Traits, _Allocator>::reference
-hq_basic_string<_CharT, _Traits, _Allocator>::at(size_type __n) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::reference
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::at(size_type __n) {
   if (__n >= size())
     this->__throw_out_of_range();
   return (*this)[__n];
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::reference
-hq_basic_string<_CharT, _Traits, _Allocator>::front() _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline
+    typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::reference
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>::front() _NOEXCEPT {
   _LIBCPP_ASSERT(!empty(), "hq_string::front(): hq_string is empty");
   return *__get_pointer();
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::const_reference
-hq_basic_string<_CharT, _Traits, _Allocator>::front() const _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline typename hq_basic_string<_CharT, _Traits, _Allocator,
+                                _Private>::const_reference
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::front()
+    const _NOEXCEPT {
   _LIBCPP_ASSERT(!empty(), "hq_string::front(): hq_string is empty");
   return *data();
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::reference
-hq_basic_string<_CharT, _Traits, _Allocator>::back() _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline
+    typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::reference
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>::back() _NOEXCEPT {
   _LIBCPP_ASSERT(!empty(), "hq_string::back(): hq_string is empty");
   return *(__get_pointer() + size() - 1);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::const_reference
-hq_basic_string<_CharT, _Traits, _Allocator>::back() const _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline typename hq_basic_string<_CharT, _Traits, _Allocator,
+                                _Private>::const_reference
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::back() const _NOEXCEPT {
   _LIBCPP_ASSERT(!empty(), "hq_string::back(): hq_string is empty");
   return *(data() + size() - 1);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::copy(value_type* __s,
-                                                   size_type __n,
-                                                   size_type __pos) const {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::copy(
+    value_type* __s, size_type __n, size_type __pos) const {
   size_type __sz = size();
   if (__pos > __sz)
     this->__throw_out_of_range();
@@ -3212,16 +3247,16 @@ hq_basic_string<_CharT, _Traits, _Allocator>::copy(value_type* __s,
   return __rlen;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline hq_basic_string<_CharT, _Traits, _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>::substr(size_type __pos,
-                                                     size_type __n) const {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline hq_basic_string<_CharT, _Traits, _Allocator, _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::substr(
+    size_type __pos, size_type __n) const {
   return hq_basic_string(*this, __pos, __n, __alloc());
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline void
-hq_basic_string<_CharT, _Traits, _Allocator>::swap(hq_basic_string& __str)
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline void hq_basic_string<_CharT, _Traits, _Allocator, _Private>::swap(
+    hq_basic_string& __str)
 #if _LIBCPP_STD_VER >= 14
     _NOEXCEPT
 #else
@@ -3246,9 +3281,9 @@ hq_basic_string<_CharT, _Traits, _Allocator>::swap(hq_basic_string& __str)
 
 // find
 
-template <class _CharT, class _Traits, class _Allocator>
-typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::find(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find(
     const value_type* __s, size_type __pos, size_type __n) const _NOEXCEPT {
   _LIBCPP_ASSERT(__n == 0 || __s != nullptr,
                  "hq_string::find(): received nullptr");
@@ -3256,38 +3291,41 @@ hq_basic_string<_CharT, _Traits, _Allocator>::find(
                                                               __s, __pos, __n);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::find(
-    const hq_basic_string& __str, size_type __pos) const _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline
+    typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find(
+        const hq_basic_string& __str, size_type __pos) const _NOEXCEPT {
   return __str_find<value_type, size_type, traits_type, npos>(
       data(), size(), __str.data(), __pos, __str.size());
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _Tp>
 typename enable_if<
     __can_be_converted_to_hq_string_view<_CharT, _Traits, _Tp>::value,
-    typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type>::type
-hq_basic_string<_CharT, _Traits, _Allocator>::find(const _Tp& __t,
-                                                   size_type __pos) const {
+    typename hq_basic_string<_CharT, _Traits, _Allocator,
+                             _Private>::size_type>::type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find(
+    const _Tp& __t, size_type __pos) const {
   __self_view __sv = __t;
   return __str_find<value_type, size_type, traits_type, npos>(
       data(), size(), __sv.data(), __pos, __sv.size());
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::find(
-    const value_type* __s, size_type __pos) const _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline
+    typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find(
+        const value_type* __s, size_type __pos) const _NOEXCEPT {
   _LIBCPP_ASSERT(__s != nullptr, "hq_string::find(): received nullptr");
   return __str_find<value_type, size_type, traits_type, npos>(
       data(), size(), __s, __pos, traits_type::length(__s));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::find(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find(
     value_type __c, size_type __pos) const _NOEXCEPT {
   return __str_find<value_type, size_type, traits_type, npos>(data(), size(),
                                                               __c, __pos);
@@ -3295,9 +3333,9 @@ hq_basic_string<_CharT, _Traits, _Allocator>::find(
 
 // rfind
 
-template <class _CharT, class _Traits, class _Allocator>
-typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::rfind(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::rfind(
     const value_type* __s, size_type __pos, size_type __n) const _NOEXCEPT {
   _LIBCPP_ASSERT(__n == 0 || __s != nullptr,
                  "hq_string::rfind(): received nullptr");
@@ -3305,38 +3343,41 @@ hq_basic_string<_CharT, _Traits, _Allocator>::rfind(
                                                                __s, __pos, __n);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::rfind(
-    const hq_basic_string& __str, size_type __pos) const _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline
+    typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>::rfind(
+        const hq_basic_string& __str, size_type __pos) const _NOEXCEPT {
   return __str_rfind<value_type, size_type, traits_type, npos>(
       data(), size(), __str.data(), __pos, __str.size());
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _Tp>
 typename enable_if<
     __can_be_converted_to_hq_string_view<_CharT, _Traits, _Tp>::value,
-    typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type>::type
-hq_basic_string<_CharT, _Traits, _Allocator>::rfind(const _Tp& __t,
-                                                    size_type __pos) const {
+    typename hq_basic_string<_CharT, _Traits, _Allocator,
+                             _Private>::size_type>::type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::rfind(
+    const _Tp& __t, size_type __pos) const {
   __self_view __sv = __t;
   return __str_rfind<value_type, size_type, traits_type, npos>(
       data(), size(), __sv.data(), __pos, __sv.size());
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::rfind(
-    const value_type* __s, size_type __pos) const _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline
+    typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>::rfind(
+        const value_type* __s, size_type __pos) const _NOEXCEPT {
   _LIBCPP_ASSERT(__s != nullptr, "hq_string::rfind(): received nullptr");
   return __str_rfind<value_type, size_type, traits_type, npos>(
       data(), size(), __s, __pos, traits_type::length(__s));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::rfind(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::rfind(
     value_type __c, size_type __pos) const _NOEXCEPT {
   return __str_rfind<value_type, size_type, traits_type, npos>(data(), size(),
                                                                __c, __pos);
@@ -3344,9 +3385,9 @@ hq_basic_string<_CharT, _Traits, _Allocator>::rfind(
 
 // find_first_of
 
-template <class _CharT, class _Traits, class _Allocator>
-typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::find_first_of(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find_first_of(
     const value_type* __s, size_type __pos, size_type __n) const _NOEXCEPT {
   _LIBCPP_ASSERT(__n == 0 || __s != nullptr,
                  "hq_string::find_first_of(): received nullptr");
@@ -3354,48 +3395,52 @@ hq_basic_string<_CharT, _Traits, _Allocator>::find_first_of(
       data(), size(), __s, __pos, __n);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::find_first_of(
-    const hq_basic_string& __str, size_type __pos) const _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline
+    typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find_first_of(
+        const hq_basic_string& __str, size_type __pos) const _NOEXCEPT {
   return __str_find_first_of<value_type, size_type, traits_type, npos>(
       data(), size(), __str.data(), __pos, __str.size());
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _Tp>
 typename enable_if<
     __can_be_converted_to_hq_string_view<_CharT, _Traits, _Tp>::value,
-    typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type>::type
-hq_basic_string<_CharT, _Traits, _Allocator>::find_first_of(
+    typename hq_basic_string<_CharT, _Traits, _Allocator,
+                             _Private>::size_type>::type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find_first_of(
     const _Tp& __t, size_type __pos) const {
   __self_view __sv = __t;
   return __str_find_first_of<value_type, size_type, traits_type, npos>(
       data(), size(), __sv.data(), __pos, __sv.size());
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::find_first_of(
-    const value_type* __s, size_type __pos) const _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline
+    typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find_first_of(
+        const value_type* __s, size_type __pos) const _NOEXCEPT {
   _LIBCPP_ASSERT(__s != nullptr,
                  "hq_string::find_first_of(): received nullptr");
   return __str_find_first_of<value_type, size_type, traits_type, npos>(
       data(), size(), __s, __pos, traits_type::length(__s));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::find_first_of(
-    value_type __c, size_type __pos) const _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline
+    typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find_first_of(
+        value_type __c, size_type __pos) const _NOEXCEPT {
   return find(__c, __pos);
 }
 
 // find_last_of
 
-template <class _CharT, class _Traits, class _Allocator>
-typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::find_last_of(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find_last_of(
     const value_type* __s, size_type __pos, size_type __n) const _NOEXCEPT {
   _LIBCPP_ASSERT(__n == 0 || __s != nullptr,
                  "hq_string::find_last_of(): received nullptr");
@@ -3403,47 +3448,51 @@ hq_basic_string<_CharT, _Traits, _Allocator>::find_last_of(
       data(), size(), __s, __pos, __n);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::find_last_of(
-    const hq_basic_string& __str, size_type __pos) const _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline
+    typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find_last_of(
+        const hq_basic_string& __str, size_type __pos) const _NOEXCEPT {
   return __str_find_last_of<value_type, size_type, traits_type, npos>(
       data(), size(), __str.data(), __pos, __str.size());
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _Tp>
 typename enable_if<
     __can_be_converted_to_hq_string_view<_CharT, _Traits, _Tp>::value,
-    typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type>::type
-hq_basic_string<_CharT, _Traits, _Allocator>::find_last_of(
+    typename hq_basic_string<_CharT, _Traits, _Allocator,
+                             _Private>::size_type>::type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find_last_of(
     const _Tp& __t, size_type __pos) const {
   __self_view __sv = __t;
   return __str_find_last_of<value_type, size_type, traits_type, npos>(
       data(), size(), __sv.data(), __pos, __sv.size());
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::find_last_of(
-    const value_type* __s, size_type __pos) const _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline
+    typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find_last_of(
+        const value_type* __s, size_type __pos) const _NOEXCEPT {
   _LIBCPP_ASSERT(__s != nullptr, "hq_string::find_last_of(): received nullptr");
   return __str_find_last_of<value_type, size_type, traits_type, npos>(
       data(), size(), __s, __pos, traits_type::length(__s));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::find_last_of(
-    value_type __c, size_type __pos) const _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline
+    typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find_last_of(
+        value_type __c, size_type __pos) const _NOEXCEPT {
   return rfind(__c, __pos);
 }
 
 // find_first_not_of
 
-template <class _CharT, class _Traits, class _Allocator>
-typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::find_first_not_of(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find_first_not_of(
     const value_type* __s, size_type __pos, size_type __n) const _NOEXCEPT {
   _LIBCPP_ASSERT(__n == 0 || __s != nullptr,
                  "hq_string::find_first_not_of(): received nullptr");
@@ -3451,49 +3500,53 @@ hq_basic_string<_CharT, _Traits, _Allocator>::find_first_not_of(
       data(), size(), __s, __pos, __n);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::find_first_not_of(
-    const hq_basic_string& __str, size_type __pos) const _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline
+    typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find_first_not_of(
+        const hq_basic_string& __str, size_type __pos) const _NOEXCEPT {
   return __str_find_first_not_of<value_type, size_type, traits_type, npos>(
       data(), size(), __str.data(), __pos, __str.size());
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _Tp>
 typename enable_if<
     __can_be_converted_to_hq_string_view<_CharT, _Traits, _Tp>::value,
-    typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type>::type
-hq_basic_string<_CharT, _Traits, _Allocator>::find_first_not_of(
+    typename hq_basic_string<_CharT, _Traits, _Allocator,
+                             _Private>::size_type>::type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find_first_not_of(
     const _Tp& __t, size_type __pos) const {
   __self_view __sv = __t;
   return __str_find_first_not_of<value_type, size_type, traits_type, npos>(
       data(), size(), __sv.data(), __pos, __sv.size());
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::find_first_not_of(
-    const value_type* __s, size_type __pos) const _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline
+    typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find_first_not_of(
+        const value_type* __s, size_type __pos) const _NOEXCEPT {
   _LIBCPP_ASSERT(__s != nullptr,
                  "hq_string::find_first_not_of(): received nullptr");
   return __str_find_first_not_of<value_type, size_type, traits_type, npos>(
       data(), size(), __s, __pos, traits_type::length(__s));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::find_first_not_of(
-    value_type __c, size_type __pos) const _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline
+    typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find_first_not_of(
+        value_type __c, size_type __pos) const _NOEXCEPT {
   return __str_find_first_not_of<value_type, size_type, traits_type, npos>(
       data(), size(), __c, __pos);
 }
 
 // find_last_not_of
 
-template <class _CharT, class _Traits, class _Allocator>
-typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::find_last_not_of(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find_last_not_of(
     const value_type* __s, size_type __pos, size_type __n) const _NOEXCEPT {
   _LIBCPP_ASSERT(__n == 0 || __s != nullptr,
                  "hq_string::find_last_not_of(): received nullptr");
@@ -3501,52 +3554,57 @@ hq_basic_string<_CharT, _Traits, _Allocator>::find_last_not_of(
       data(), size(), __s, __pos, __n);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::find_last_not_of(
-    const hq_basic_string& __str, size_type __pos) const _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline
+    typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find_last_not_of(
+        const hq_basic_string& __str, size_type __pos) const _NOEXCEPT {
   return __str_find_last_not_of<value_type, size_type, traits_type, npos>(
       data(), size(), __str.data(), __pos, __str.size());
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _Tp>
 typename enable_if<
     __can_be_converted_to_hq_string_view<_CharT, _Traits, _Tp>::value,
-    typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type>::type
-hq_basic_string<_CharT, _Traits, _Allocator>::find_last_not_of(
+    typename hq_basic_string<_CharT, _Traits, _Allocator,
+                             _Private>::size_type>::type
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find_last_not_of(
     const _Tp& __t, size_type __pos) const {
   __self_view __sv = __t;
   return __str_find_last_not_of<value_type, size_type, traits_type, npos>(
       data(), size(), __sv.data(), __pos, __sv.size());
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::find_last_not_of(
-    const value_type* __s, size_type __pos) const _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline
+    typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find_last_not_of(
+        const value_type* __s, size_type __pos) const _NOEXCEPT {
   _LIBCPP_ASSERT(__s != nullptr,
                  "hq_string::find_last_not_of(): received nullptr");
   return __str_find_last_not_of<value_type, size_type, traits_type, npos>(
       data(), size(), __s, __pos, traits_type::length(__s));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-hq_basic_string<_CharT, _Traits, _Allocator>::find_last_not_of(
-    value_type __c, size_type __pos) const _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline
+    typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>::find_last_not_of(
+        value_type __c, size_type __pos) const _NOEXCEPT {
   return __str_find_last_not_of<value_type, size_type, traits_type, npos>(
       data(), size(), __c, __pos);
 }
 
 // compare
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _Tp>
 typename enable_if<
     __can_be_converted_to_hq_string_view<_CharT, _Traits, _Tp>::value,
     int>::type
-hq_basic_string<_CharT, _Traits, _Allocator>::compare(const _Tp& __t) const {
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::compare(
+    const _Tp& __t) const {
   __self_view __sv = __t;
   size_t __lhs_sz = size();
   size_t __rhs_sz = __sv.size();
@@ -3561,14 +3619,14 @@ hq_basic_string<_CharT, _Traits, _Allocator>::compare(const _Tp& __t) const {
   return 0;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline int hq_basic_string<_CharT, _Traits, _Allocator>::compare(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline int hq_basic_string<_CharT, _Traits, _Allocator, _Private>::compare(
     const hq_basic_string& __str) const _NOEXCEPT {
   return compare(__self_view(__str));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-int hq_basic_string<_CharT, _Traits, _Allocator>::compare(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+int hq_basic_string<_CharT, _Traits, _Allocator, _Private>::compare(
     size_type __pos1, size_type __n1, const value_type* __s,
     size_type __n2) const {
   _LIBCPP_ASSERT(__n2 == 0 || __s != nullptr,
@@ -3588,56 +3646,53 @@ int hq_basic_string<_CharT, _Traits, _Allocator>::compare(
   return __r;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _Tp>
 typename enable_if<
     __can_be_converted_to_hq_string_view<_CharT, _Traits, _Tp>::value,
     int>::type
-hq_basic_string<_CharT, _Traits, _Allocator>::compare(size_type __pos1,
-                                                      size_type __n1,
-                                                      const _Tp& __t) const {
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::compare(
+    size_type __pos1, size_type __n1, const _Tp& __t) const {
   __self_view __sv = __t;
   return compare(__pos1, __n1, __sv.data(), __sv.size());
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline int hq_basic_string<_CharT, _Traits, _Allocator>::compare(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline int hq_basic_string<_CharT, _Traits, _Allocator, _Private>::compare(
     size_type __pos1, size_type __n1, const hq_basic_string& __str) const {
   return compare(__pos1, __n1, __str.data(), __str.size());
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 template <class _Tp>
 typename enable_if<
     __can_be_converted_to_hq_string_view<_CharT, _Traits, _Tp>::value,
     int>::type
-hq_basic_string<_CharT, _Traits, _Allocator>::compare(size_type __pos1,
-                                                      size_type __n1,
-                                                      const _Tp& __t,
-                                                      size_type __pos2,
-                                                      size_type __n2) const {
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::compare(
+    size_type __pos1, size_type __n1, const _Tp& __t, size_type __pos2,
+    size_type __n2) const {
   __self_view __sv = __t;
   return __self_view(*this)
       .substr(__pos1, __n1)
       .compare(__sv.substr(__pos2, __n2));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-int hq_basic_string<_CharT, _Traits, _Allocator>::compare(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+int hq_basic_string<_CharT, _Traits, _Allocator, _Private>::compare(
     size_type __pos1, size_type __n1, const hq_basic_string& __str,
     size_type __pos2, size_type __n2) const {
   return compare(__pos1, __n1, __self_view(__str), __pos2, __n2);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-int hq_basic_string<_CharT, _Traits, _Allocator>::compare(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+int hq_basic_string<_CharT, _Traits, _Allocator, _Private>::compare(
     const value_type* __s) const _NOEXCEPT {
   _LIBCPP_ASSERT(__s != nullptr, "hq_string::compare(): received nullptr");
   return compare(0, npos, __s, traits_type::length(__s));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-int hq_basic_string<_CharT, _Traits, _Allocator>::compare(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+int hq_basic_string<_CharT, _Traits, _Allocator, _Private>::compare(
     size_type __pos1, size_type __n1, const value_type* __s) const {
   _LIBCPP_ASSERT(__s != nullptr, "hq_string::compare(): received nullptr");
   return compare(__pos1, __n1, __s, traits_type::length(__s));
@@ -3645,8 +3700,9 @@ int hq_basic_string<_CharT, _Traits, _Allocator>::compare(
 
 // __invariants
 
-template <class _CharT, class _Traits, class _Allocator>
-inline bool hq_basic_string<_CharT, _Traits, _Allocator>::__invariants() const {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline bool
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::__invariants() const {
   if (size() > capacity())
     return false;
   if (capacity() < __min_cap - 1)
@@ -3660,9 +3716,10 @@ inline bool hq_basic_string<_CharT, _Traits, _Allocator>::__invariants() const {
 
 // __clear_and_shrink
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 inline void
-hq_basic_string<_CharT, _Traits, _Allocator>::__clear_and_shrink() _NOEXCEPT {
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>::__clear_and_shrink()
+    _NOEXCEPT {
   clear();
   if (__is_long()) {
     pointer __p = __get_long_pointer();
@@ -3676,28 +3733,30 @@ hq_basic_string<_CharT, _Traits, _Allocator>::__clear_and_shrink() _NOEXCEPT {
 
 // operator==
 
-template <class _CharT, class _Traits, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY bool operator==(
-    const hq_basic_string<_CharT, _Traits, _Allocator>& __lhs,
-    const hq_basic_string<_CharT, _Traits, _Allocator>& __rhs) _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline _LIBCPP_INLINE_VISIBILITY bool
+operator==(const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __lhs,
+           const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __rhs)
+    _NOEXCEPT {
   size_t __lhs_sz = __lhs.size();
   return __lhs_sz == __rhs.size() &&
          _Traits::compare(__lhs.data(), __rhs.data(), __lhs_sz) == 0;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 inline _LIBCPP_INLINE_VISIBILITY bool
-operator==(const hq_basic_string<_CharT, _Traits, _Allocator>& __lhs,
+operator==(const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __lhs,
            const basic_string<_CharT, _Traits, _Allocator>& __rhs) _NOEXCEPT {
   size_t __lhs_sz = __lhs.size();
   return __lhs_sz == __rhs.size() &&
          _Traits::compare(__lhs.data(), __rhs.data(), __lhs_sz) == 0;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY bool operator==(
-    const basic_string<_CharT, _Traits, _Allocator>& __lhs,
-    const hq_basic_string<_CharT, _Traits, _Allocator>& __rhs) _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline _LIBCPP_INLINE_VISIBILITY bool
+operator==(const basic_string<_CharT, _Traits, _Allocator>& __lhs,
+           const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __rhs)
+    _NOEXCEPT {
   size_t __lhs_sz = __lhs.size();
   return __lhs_sz == __rhs.size() &&
          _Traits::compare(__lhs.data(), __rhs.data(), __lhs_sz) == 0;
@@ -3721,11 +3780,12 @@ operator==(const hq_basic_string<char, char_traits<char>, _Allocator>& __lhs,
   return true;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY bool operator==(
-    const _CharT* __lhs,
-    const hq_basic_string<_CharT, _Traits, _Allocator>& __rhs) _NOEXCEPT {
-  typedef hq_basic_string<_CharT, _Traits, _Allocator> _String;
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline _LIBCPP_INLINE_VISIBILITY bool
+operator==(const _CharT* __lhs,
+           const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __rhs)
+    _NOEXCEPT {
+  typedef hq_basic_string<_CharT, _Traits, _Allocator, _Private> _String;
   _LIBCPP_ASSERT(__lhs != nullptr,
                  "operator==(char*, hq_basic_string): received nullptr");
   size_t __lhs_len = _Traits::length(__lhs);
@@ -3734,11 +3794,11 @@ inline _LIBCPP_INLINE_VISIBILITY bool operator==(
   return __rhs.compare(0, _String::npos, __lhs, __lhs_len) == 0;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 inline _LIBCPP_INLINE_VISIBILITY bool
-operator==(const hq_basic_string<_CharT, _Traits, _Allocator>& __lhs,
+operator==(const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __lhs,
            const _CharT* __rhs) _NOEXCEPT {
-  typedef hq_basic_string<_CharT, _Traits, _Allocator> _String;
+  typedef hq_basic_string<_CharT, _Traits, _Allocator, _Private> _String;
   _LIBCPP_ASSERT(__rhs != nullptr,
                  "operator==(hq_basic_string, char*): received nullptr");
   size_t __rhs_len = _Traits::length(__rhs);
@@ -3747,222 +3807,240 @@ operator==(const hq_basic_string<_CharT, _Traits, _Allocator>& __lhs,
   return __lhs.compare(0, _String::npos, __rhs, __rhs_len) == 0;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY bool operator!=(
-    const hq_basic_string<_CharT, _Traits, _Allocator>& __lhs,
-    const hq_basic_string<_CharT, _Traits, _Allocator>& __rhs) _NOEXCEPT {
-  return !(__lhs == __rhs);
-}
-
-template <class _CharT, class _Traits, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY bool operator!=(
-    const basic_string<_CharT, _Traits, _Allocator>& __lhs,
-    const hq_basic_string<_CharT, _Traits, _Allocator>& __rhs) _NOEXCEPT {
-  return !(__lhs == __rhs);
-}
-
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 inline _LIBCPP_INLINE_VISIBILITY bool
-operator!=(const hq_basic_string<_CharT, _Traits, _Allocator>& __lhs,
+operator!=(const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __lhs,
+           const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __rhs)
+    _NOEXCEPT {
+  return !(__lhs == __rhs);
+}
+
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline _LIBCPP_INLINE_VISIBILITY bool
+operator!=(const basic_string<_CharT, _Traits, _Allocator>& __lhs,
+           const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __rhs)
+    _NOEXCEPT {
+  return !(__lhs == __rhs);
+}
+
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline _LIBCPP_INLINE_VISIBILITY bool
+operator!=(const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __lhs,
            const basic_string<_CharT, _Traits, _Allocator>& __rhs) _NOEXCEPT {
   return !(__lhs == __rhs);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY bool operator!=(
-    const _CharT* __lhs,
-    const hq_basic_string<_CharT, _Traits, _Allocator>& __rhs) _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline _LIBCPP_INLINE_VISIBILITY bool
+operator!=(const _CharT* __lhs,
+           const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __rhs)
+    _NOEXCEPT {
   return !(__lhs == __rhs);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 inline _LIBCPP_INLINE_VISIBILITY bool
-operator!=(const hq_basic_string<_CharT, _Traits, _Allocator>& __lhs,
+operator!=(const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __lhs,
            const _CharT* __rhs) _NOEXCEPT {
   return !(__lhs == __rhs);
 }
 
 // operator<
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 inline _LIBCPP_INLINE_VISIBILITY bool
-operator<(const hq_basic_string<_CharT, _Traits, _Allocator>& __lhs,
-          const hq_basic_string<_CharT, _Traits, _Allocator>& __rhs) _NOEXCEPT {
+operator<(const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __lhs,
+          const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __rhs)
+    _NOEXCEPT {
   return __lhs.compare(__rhs) < 0;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 inline _LIBCPP_INLINE_VISIBILITY bool
-operator<(const hq_basic_string<_CharT, _Traits, _Allocator>& __lhs,
+operator<(const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __lhs,
           const _CharT* __rhs) _NOEXCEPT {
   return __lhs.compare(__rhs) < 0;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 inline _LIBCPP_INLINE_VISIBILITY bool
 operator<(const _CharT* __lhs,
-          const hq_basic_string<_CharT, _Traits, _Allocator>& __rhs) _NOEXCEPT {
+          const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __rhs)
+    _NOEXCEPT {
   return __rhs.compare(__lhs) > 0;
 }
 
 // operator>
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 inline _LIBCPP_INLINE_VISIBILITY bool
-operator>(const hq_basic_string<_CharT, _Traits, _Allocator>& __lhs,
-          const hq_basic_string<_CharT, _Traits, _Allocator>& __rhs) _NOEXCEPT {
+operator>(const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __lhs,
+          const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __rhs)
+    _NOEXCEPT {
   return __rhs < __lhs;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 inline _LIBCPP_INLINE_VISIBILITY bool
-operator>(const hq_basic_string<_CharT, _Traits, _Allocator>& __lhs,
+operator>(const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __lhs,
           const _CharT* __rhs) _NOEXCEPT {
   return __rhs < __lhs;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 inline _LIBCPP_INLINE_VISIBILITY bool
 operator>(const _CharT* __lhs,
-          const hq_basic_string<_CharT, _Traits, _Allocator>& __rhs) _NOEXCEPT {
+          const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __rhs)
+    _NOEXCEPT {
   return __rhs < __lhs;
 }
 
 // operator<=
 
-template <class _CharT, class _Traits, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY bool operator<=(
-    const hq_basic_string<_CharT, _Traits, _Allocator>& __lhs,
-    const hq_basic_string<_CharT, _Traits, _Allocator>& __rhs) _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline _LIBCPP_INLINE_VISIBILITY bool
+operator<=(const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __lhs,
+           const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __rhs)
+    _NOEXCEPT {
   return !(__rhs < __lhs);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 inline _LIBCPP_INLINE_VISIBILITY bool
-operator<=(const hq_basic_string<_CharT, _Traits, _Allocator>& __lhs,
+operator<=(const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __lhs,
            const _CharT* __rhs) _NOEXCEPT {
   return !(__rhs < __lhs);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY bool operator<=(
-    const _CharT* __lhs,
-    const hq_basic_string<_CharT, _Traits, _Allocator>& __rhs) _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline _LIBCPP_INLINE_VISIBILITY bool
+operator<=(const _CharT* __lhs,
+           const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __rhs)
+    _NOEXCEPT {
   return !(__rhs < __lhs);
 }
 
 // operator>=
 
-template <class _CharT, class _Traits, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY bool operator>=(
-    const hq_basic_string<_CharT, _Traits, _Allocator>& __lhs,
-    const hq_basic_string<_CharT, _Traits, _Allocator>& __rhs) _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline _LIBCPP_INLINE_VISIBILITY bool
+operator>=(const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __lhs,
+           const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __rhs)
+    _NOEXCEPT {
   return !(__lhs < __rhs);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 inline _LIBCPP_INLINE_VISIBILITY bool
-operator>=(const hq_basic_string<_CharT, _Traits, _Allocator>& __lhs,
+operator>=(const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __lhs,
            const _CharT* __rhs) _NOEXCEPT {
   return !(__lhs < __rhs);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY bool operator>=(
-    const _CharT* __lhs,
-    const hq_basic_string<_CharT, _Traits, _Allocator>& __rhs) _NOEXCEPT {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline _LIBCPP_INLINE_VISIBILITY bool
+operator>=(const _CharT* __lhs,
+           const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __rhs)
+    _NOEXCEPT {
   return !(__lhs < __rhs);
 }
 
 // operator +
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>
-operator+(const hq_basic_string<_CharT, _Traits, _Allocator>& __lhs,
-          const hq_basic_string<_CharT, _Traits, _Allocator>& __rhs) {
-  hq_basic_string<_CharT, _Traits, _Allocator> __r(__lhs.get_allocator());
-  typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type __lhs_sz =
-      __lhs.size();
-  typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type __rhs_sz =
-      __rhs.size();
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>
+operator+(const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __lhs,
+          const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __rhs) {
+  hq_basic_string<_CharT, _Traits, _Allocator, _Private> __r(
+      __lhs.get_allocator());
+  typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+      __lhs_sz = __lhs.size();
+  typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+      __rhs_sz = __rhs.size();
   __r.__init(__lhs.data(), __lhs_sz, __lhs_sz + __rhs_sz);
   __r.append(__rhs.data(), __rhs_sz);
   return __r;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>
 operator+(const _CharT* __lhs,
-          const hq_basic_string<_CharT, _Traits, _Allocator>& __rhs) {
-  hq_basic_string<_CharT, _Traits, _Allocator> __r(__rhs.get_allocator());
-  typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type __lhs_sz =
-      _Traits::length(__lhs);
-  typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type __rhs_sz =
-      __rhs.size();
+          const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __rhs) {
+  hq_basic_string<_CharT, _Traits, _Allocator, _Private> __r(
+      __rhs.get_allocator());
+  typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+      __lhs_sz = _Traits::length(__lhs);
+  typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+      __rhs_sz = __rhs.size();
   __r.__init(__lhs, __lhs_sz, __lhs_sz + __rhs_sz);
   __r.append(__rhs.data(), __rhs_sz);
   return __r;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>
 operator+(_CharT __lhs,
-          const hq_basic_string<_CharT, _Traits, _Allocator>& __rhs) {
-  hq_basic_string<_CharT, _Traits, _Allocator> __r(__rhs.get_allocator());
-  typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type __rhs_sz =
-      __rhs.size();
+          const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __rhs) {
+  hq_basic_string<_CharT, _Traits, _Allocator, _Private> __r(
+      __rhs.get_allocator());
+  typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+      __rhs_sz = __rhs.size();
   __r.__init(&__lhs, 1, 1 + __rhs_sz);
   __r.append(__rhs.data(), __rhs_sz);
   return __r;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>
 operator+(const basic_string<_CharT, _Traits, _Allocator>& __lhs,
-          const hq_basic_string<_CharT, _Traits, _Allocator>& __rhs) {
-  hq_basic_string<_CharT, _Traits, _Allocator> __r(__lhs.get_allocator());
+          const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __rhs) {
+  hq_basic_string<_CharT, _Traits, _Allocator, _Private> __r(
+      __lhs.get_allocator());
   typename basic_string<_CharT, _Traits, _Allocator>::size_type __lhs_sz =
       __lhs.size();
-  typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type __rhs_sz =
-      __rhs.size();
+  typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+      __rhs_sz = __rhs.size();
   __r.__init(__lhs.data(), __lhs_sz, __lhs_sz + __rhs_sz);
   __r.append(__rhs.data(), __rhs_sz);
   return __r;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline hq_basic_string<_CharT, _Traits, _Allocator>
-operator+(const hq_basic_string<_CharT, _Traits, _Allocator>& __lhs,
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline hq_basic_string<_CharT, _Traits, _Allocator, _Private>
+operator+(const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __lhs,
           const _CharT* __rhs) {
-  hq_basic_string<_CharT, _Traits, _Allocator> __r(__lhs.get_allocator());
-  typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type __lhs_sz =
-      __lhs.size();
-  typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type __rhs_sz =
-      _Traits::length(__rhs);
+  hq_basic_string<_CharT, _Traits, _Allocator, _Private> __r(
+      __lhs.get_allocator());
+  typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+      __lhs_sz = __lhs.size();
+  typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+      __rhs_sz = _Traits::length(__rhs);
   __r.__init(__lhs.data(), __lhs_sz, __lhs_sz + __rhs_sz);
   __r.append(__rhs, __rhs_sz);
   return __r;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>
-operator+(const hq_basic_string<_CharT, _Traits, _Allocator>& __lhs,
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>
+operator+(const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __lhs,
           _CharT __rhs) {
-  hq_basic_string<_CharT, _Traits, _Allocator> __r(__lhs.get_allocator());
-  typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type __lhs_sz =
-      __lhs.size();
+  hq_basic_string<_CharT, _Traits, _Allocator, _Private> __r(
+      __lhs.get_allocator());
+  typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+      __lhs_sz = __lhs.size();
   __r.__init(__lhs.data(), __lhs_sz, __lhs_sz + 1);
   __r.push_back(__rhs);
   return __r;
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-hq_basic_string<_CharT, _Traits, _Allocator>
-operator+(const hq_basic_string<_CharT, _Traits, _Allocator>& __lhs,
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+hq_basic_string<_CharT, _Traits, _Allocator, _Private>
+operator+(const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __lhs,
           const basic_string<_CharT, _Traits, _Allocator>& __rhs) {
-  hq_basic_string<_CharT, _Traits, _Allocator> __r(__lhs.get_allocator());
-  typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type __lhs_sz =
-      __lhs.size();
+  hq_basic_string<_CharT, _Traits, _Allocator, _Private> __r(
+      __lhs.get_allocator());
+  typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+      __lhs_sz = __lhs.size();
   typename basic_string<_CharT, _Traits, _Allocator>::size_type __rhs_sz =
       __rhs.size();
   __r.__init(__lhs.data(), __lhs_sz, __lhs_sz + __rhs_sz);
@@ -3972,66 +4050,79 @@ operator+(const hq_basic_string<_CharT, _Traits, _Allocator>& __lhs,
 
 #ifndef _LIBCPP_CXX03_LANG
 
-template <class _CharT, class _Traits, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY hq_basic_string<_CharT, _Traits, _Allocator>
-operator+(hq_basic_string<_CharT, _Traits, _Allocator>&& __lhs,
-          const hq_basic_string<_CharT, _Traits, _Allocator>& __rhs) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline _LIBCPP_INLINE_VISIBILITY
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>
+    operator+(
+        hq_basic_string<_CharT, _Traits, _Allocator, _Private>&& __lhs,
+        const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __rhs) {
   return _VSTD::move(__lhs.append(__rhs));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY hq_basic_string<_CharT, _Traits, _Allocator>
-operator+(const hq_basic_string<_CharT, _Traits, _Allocator>& __lhs,
-          hq_basic_string<_CharT, _Traits, _Allocator>&& __rhs) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline _LIBCPP_INLINE_VISIBILITY
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>
+    operator+(
+        const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __lhs,
+        hq_basic_string<_CharT, _Traits, _Allocator, _Private>&& __rhs) {
   return _VSTD::move(__rhs.insert(0, __lhs));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY hq_basic_string<_CharT, _Traits, _Allocator>
-operator+(hq_basic_string<_CharT, _Traits, _Allocator>&& __lhs,
-          hq_basic_string<_CharT, _Traits, _Allocator>&& __rhs) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline _LIBCPP_INLINE_VISIBILITY
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>
+    operator+(hq_basic_string<_CharT, _Traits, _Allocator, _Private>&& __lhs,
+              hq_basic_string<_CharT, _Traits, _Allocator, _Private>&& __rhs) {
   return _VSTD::move(__lhs.append(__rhs));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY hq_basic_string<_CharT, _Traits, _Allocator>
-operator+(const _CharT* __lhs,
-          hq_basic_string<_CharT, _Traits, _Allocator>&& __rhs) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline _LIBCPP_INLINE_VISIBILITY
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>
+    operator+(const _CharT* __lhs,
+              hq_basic_string<_CharT, _Traits, _Allocator, _Private>&& __rhs) {
   return _VSTD::move(__rhs.insert(0, __lhs));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY hq_basic_string<_CharT, _Traits, _Allocator>
-operator+(_CharT __lhs, hq_basic_string<_CharT, _Traits, _Allocator>&& __rhs) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline _LIBCPP_INLINE_VISIBILITY
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>
+    operator+(_CharT __lhs,
+              hq_basic_string<_CharT, _Traits, _Allocator, _Private>&& __rhs) {
   __rhs.insert(__rhs.begin(), __lhs);
   return _VSTD::move(__rhs);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY hq_basic_string<_CharT, _Traits, _Allocator>
-operator+(basic_string<_CharT, _Traits, _Allocator>&& __lhs,
-          hq_basic_string<_CharT, _Traits, _Allocator>&& __rhs) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline _LIBCPP_INLINE_VISIBILITY
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>
+    operator+(basic_string<_CharT, _Traits, _Allocator>&& __lhs,
+              hq_basic_string<_CharT, _Traits, _Allocator, _Private>&& __rhs) {
   return _VSTD::move(__rhs.insert(0, __lhs));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY hq_basic_string<_CharT, _Traits, _Allocator>
-operator+(hq_basic_string<_CharT, _Traits, _Allocator>&& __lhs,
-          const _CharT* __rhs) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline _LIBCPP_INLINE_VISIBILITY
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>
+    operator+(hq_basic_string<_CharT, _Traits, _Allocator, _Private>&& __lhs,
+              const _CharT* __rhs) {
   return _VSTD::move(__lhs.append(__rhs));
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY hq_basic_string<_CharT, _Traits, _Allocator>
-operator+(hq_basic_string<_CharT, _Traits, _Allocator>&& __lhs, _CharT __rhs) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline _LIBCPP_INLINE_VISIBILITY
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>
+    operator+(hq_basic_string<_CharT, _Traits, _Allocator, _Private>&& __lhs,
+              _CharT __rhs) {
   __lhs.push_back(__rhs);
   return _VSTD::move(__lhs);
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY hq_basic_string<_CharT, _Traits, _Allocator>
-operator+(hq_basic_string<_CharT, _Traits, _Allocator>&& __lhs,
-          basic_string<_CharT, _Traits, _Allocator>&& __rhs) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+inline _LIBCPP_INLINE_VISIBILITY
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>
+    operator+(hq_basic_string<_CharT, _Traits, _Allocator, _Private>&& __lhs,
+              basic_string<_CharT, _Traits, _Allocator>&& __rhs) {
   __lhs.push_back(__rhs);
   return _VSTD::move(__lhs);
 }
@@ -4040,10 +4131,10 @@ operator+(hq_basic_string<_CharT, _Traits, _Allocator>&& __lhs,
 
 // swap
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 inline _LIBCPP_INLINE_VISIBILITY void
-swap(hq_basic_string<_CharT, _Traits, _Allocator>& __lhs,
-     hq_basic_string<_CharT, _Traits, _Allocator>& __rhs)
+swap(hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __lhs,
+     hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __rhs)
     _NOEXCEPT_(_NOEXCEPT_(__lhs.swap(__rhs))) {
   __lhs.swap(__rhs);
 }
@@ -4109,9 +4200,9 @@ _LIBCPP_FUNC_VIS hq_wstring to_hqwstring(float __val);
 _LIBCPP_FUNC_VIS hq_wstring to_hqwstring(double __val);
 _LIBCPP_FUNC_VIS hq_wstring to_hqwstring(long double __val);
 
-template <class _CharT, class _Traits, class _Allocator>
-const typename hq_basic_string<_CharT, _Traits, _Allocator>::size_type
-    hq_basic_string<_CharT, _Traits, _Allocator>::npos;
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+const typename hq_basic_string<_CharT, _Traits, _Allocator, _Private>::size_type
+    hq_basic_string<_CharT, _Traits, _Allocator, _Private>::npos;
 
 template <class _CharT, class _Allocator>
 struct _LIBCPP_TEMPLATE_VIS
@@ -4124,52 +4215,55 @@ struct _LIBCPP_TEMPLATE_VIS
   }
 };
 
-template <class _CharT, class _Traits, class _Allocator>
-basic_ostream<_CharT, _Traits>&
-operator<<(basic_ostream<_CharT, _Traits>& __os,
-           const hq_basic_string<_CharT, _Traits, _Allocator>& __str) {
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+basic_ostream<_CharT, _Traits>& operator<<(
+    basic_ostream<_CharT, _Traits>& __os,
+    const hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __str) {
   return __put_character_sequence(__os, __str.data(), __str.size());
 }
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 basic_istream<_CharT, _Traits>&
 operator>>(basic_istream<_CharT, _Traits>& __is,
-           hq_basic_string<_CharT, _Traits, _Allocator>& __str);
+           hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __str);
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 basic_istream<_CharT, _Traits>&
 getline(basic_istream<_CharT, _Traits>& __is,
-        hq_basic_string<_CharT, _Traits, _Allocator>& __str, _CharT __dlm);
+        hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __str,
+        _CharT __dlm);
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 inline _LIBCPP_INLINE_VISIBILITY basic_istream<_CharT, _Traits>&
 getline(basic_istream<_CharT, _Traits>& __is,
-        hq_basic_string<_CharT, _Traits, _Allocator>& __str);
+        hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __str);
 
 #ifndef _LIBCPP_CXX03_LANG
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 inline _LIBCPP_INLINE_VISIBILITY basic_istream<_CharT, _Traits>&
 getline(basic_istream<_CharT, _Traits>&& __is,
-        hq_basic_string<_CharT, _Traits, _Allocator>& __str, _CharT __dlm);
+        hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __str,
+        _CharT __dlm);
 
-template <class _CharT, class _Traits, class _Allocator>
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
 inline _LIBCPP_INLINE_VISIBILITY basic_istream<_CharT, _Traits>&
 getline(basic_istream<_CharT, _Traits>&& __is,
-        hq_basic_string<_CharT, _Traits, _Allocator>& __str);
+        hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __str);
 
 #endif // _LIBCPP_CXX03_LANG
 
 #if _LIBCPP_STD_VER > 17
 template <class _CharT, class _Traits, class _Allocator, class _Up>
 inline _LIBCPP_INLINE_VISIBILITY void
-erase(hq_basic_string<_CharT, _Traits, _Allocator>& __str, const _Up& __v) {
+erase(hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __str,
+      const _Up& __v) {
   __str.erase(_VSTD::remove(__str.begin(), __str.end(), __v), __str.end());
 }
 
 template <class _CharT, class _Traits, class _Allocator, class _Predicate>
 inline _LIBCPP_INLINE_VISIBILITY void
-erase_if(hq_basic_string<_CharT, _Traits, _Allocator>& __str,
+erase_if(hq_basic_string<_CharT, _Traits, _Allocator, _Private>& __str,
          _Predicate __pred) {
   __str.erase(_VSTD::remove_if(__str.begin(), __str.end(), __pred),
               __str.end());
@@ -4178,29 +4272,29 @@ erase_if(hq_basic_string<_CharT, _Traits, _Allocator>& __str,
 
 #if _LIBCPP_DEBUG_LEVEL >= 2
 
-template <class _CharT, class _Traits, class _Allocator>
-bool hq_basic_string<_CharT, _Traits, _Allocator>::__dereferenceable(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+bool hq_basic_string<_CharT, _Traits, _Allocator, _Private>::__dereferenceable(
     const const_iterator* __i) const {
   return this->data() <= _VSTD::__to_raw_pointer(__i->base()) &&
          _VSTD::__to_raw_pointer(__i->base()) < this->data() + this->size();
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-bool hq_basic_string<_CharT, _Traits, _Allocator>::__decrementable(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+bool hq_basic_string<_CharT, _Traits, _Allocator, _Private>::__decrementable(
     const const_iterator* __i) const {
   return this->data() < _VSTD::__to_raw_pointer(__i->base()) &&
          _VSTD::__to_raw_pointer(__i->base()) <= this->data() + this->size();
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-bool hq_basic_string<_CharT, _Traits, _Allocator>::__addable(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+bool hq_basic_string<_CharT, _Traits, _Allocator, _Private>::__addable(
     const const_iterator* __i, ptrdiff_t __n) const {
   const value_type* __p = _VSTD::__to_raw_pointer(__i->base()) + __n;
   return this->data() <= __p && __p <= this->data() + this->size();
 }
 
-template <class _CharT, class _Traits, class _Allocator>
-bool hq_basic_string<_CharT, _Traits, _Allocator>::__subscriptable(
+template <class _CharT, class _Traits, class _Allocator, bool _Private>
+bool hq_basic_string<_CharT, _Traits, _Allocator, _Private>::__subscriptable(
     const const_iterator* __i, ptrdiff_t __n) const {
   const value_type* __p = _VSTD::__to_raw_pointer(__i->base()) + __n;
   return this->data() <= __p && __p < this->data() + this->size();
